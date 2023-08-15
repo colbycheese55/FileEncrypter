@@ -37,6 +37,16 @@ public class UserManager {
     public void createNewUser(Scanner scan) {
         System.out.print("NEW USER CREATION: \nEnter username: ");
         String username = scan.nextLine();
+        if (hasUsername(username)) {
+            System.out.println("User already exists! Try again with a different username.");
+            createNewUser(scan);
+            return;
+        }
+        if (username.equals("NEW_USER") || username.equals("EXIT")) {
+            System.out.println("Invalid username! Try again with a different username.");
+            createNewUser(scan);
+            return;
+        }
         System.out.print("Enter password: ");
         String password = scan.nextLine();
 
