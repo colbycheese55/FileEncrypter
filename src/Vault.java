@@ -136,6 +136,6 @@ public class Vault {
             user.fileProfiles.remove(upNext);
         userManager.updateUserFile(user);
         System.out.println("MISSING FILES: the following files are missing from the encrypted vault and have been removed from the user's availability list");
-        System.out.println(Arrays.toString(list).replace("[", "").replace("]", ""));
+        System.out.println(Arrays.toString(list));
     }
 }
