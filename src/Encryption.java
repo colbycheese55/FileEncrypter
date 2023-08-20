@@ -60,7 +60,7 @@ public class Encryption {
         }
         return null;
     }
-    public static String generateNewIV() {
+    public static String generateSecureToken() {
         Random random = new Random();
         byte[] arr = new byte[16];
         random.nextBytes(arr);

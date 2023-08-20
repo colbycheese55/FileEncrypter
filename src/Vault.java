@@ -88,8 +88,8 @@ public class Vault {
         boolean newFilesAdded = false;
         for (String nextFileName: FileHandler.getFilenamesAtPath(FileHandler.DECRYPTED_VAULT_EXT)) {
             if (addNewFiles && !user.fileProfiles.containsKey(nextFileName)) {
-                String key = Encryption.generateNewIV();
-                String IV = Encryption.generateNewIV();
+                String key = Encryption.generateSecureToken();
+                String IV = Encryption.generateSecureToken();
                 FileProfile newFileProfile = new FileProfile(nextFileName, key, IV);
                 user.fileProfiles.put(nextFileName, newFileProfile);
                 newFilesAdded = true;
