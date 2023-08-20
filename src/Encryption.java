@@ -7,36 +7,47 @@ import java.util.*;
 public class Encryption {
     public static final String DEFAULT_INITIALIZATION_VECTOR = "bOcaFVdcPGgDw3A82k/4bw==";
 
-    public static String encrypt(String message, String password, String initializationVector) {
+    // ENCRYPTION
+    public static byte[] encrypt(byte[] message, String password, String initializationVector) {
         try {
             IvParameterSpec IV = new IvParameterSpec(Base64.getDecoder().decode(initializationVector));
             SecretKeySpec KEY = getKeyFromPassword(password);
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
             cipher.init(Cipher.ENCRYPT_MODE, KEY, IV);
-            byte[] encrypted = cipher.doFinal(message.getBytes());
-            return Base64.getEncoder().encodeToString(encrypted);
+            byte[] encrypted = cipher.doFinal(message);
+            return encrypted;
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
-    public static String decrypt(String code, String password, String initializationVector) {
+    public static String encrypt(String message, String password, String initializationVector) {
+        byte[] out = encrypt(message.getBytes(), password, initializationVector);
+        return Base64.getEncoder().encodeToString(out);
+    }
+    public static String encrypt(String message, String password) {return encrypt(message, password, DEFAULT_INITIALIZATION_VECTOR);}
+
+    // DECRYPTION
+    public static byte[] decrypt(byte[] code, String password, String initializationVector) {
         try {
             IvParameterSpec IV = new IvParameterSpec(Base64.getDecoder().decode(initializationVector));
             SecretKeySpec KEY = getKeyFromPassword(password);
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
             cipher.init(Cipher.DECRYPT_MODE, KEY, IV);
-            byte[] decrypted = cipher.doFinal(Base64.getDecoder().decode(code));
-            return new String(decrypted);
+            byte[] decrypted = cipher.doFinal(code);
+            return decrypted;
         } 
-    catch (BadPaddingException bpe) {/*bpe.printStackTrace();*/}
+        catch (BadPaddingException bpe) {/*bpe.printStackTrace();*/}
         catch (Exception e) {e.printStackTrace();}
         return null;
     }
-
-    public static String encrypt(String message, String password) {return encrypt(message, password, DEFAULT_INITIALIZATION_VECTOR);}
+    public static String decrypt(String code, String password, String initializationVector) {
+        byte[] out = decrypt(Base64.getDecoder().decode(code), password, initializationVector);
+        return new String(out);
+    }
     public static String decrypt(String code, String password) {return decrypt(code, password, DEFAULT_INITIALIZATION_VECTOR);}
 
+    // OTHER METHODS
     private static SecretKeySpec getKeyFromPassword(String password) {
         try {
             String salt = "salt";
