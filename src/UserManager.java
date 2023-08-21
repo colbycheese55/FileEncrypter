@@ -1,16 +1,14 @@
 package src;
 import java.util.*;
 
-public class UserManager {
-    public static final String USER_FILE_EXT = "USER_FILE.txt";  
-
+public class UserManager{
     private HashMap<Integer, EncryptedUser> users;
     private String fileRawText;
 
     public UserManager() {
         users = new HashMap<Integer, EncryptedUser>();
 
-        fileRawText = FileHandler.read(USER_FILE_EXT);
+        fileRawText = FileHandler.readUserFile();
         if (fileRawText.equals(""))
             return;
         for (String rawUserText: fileRawText.split("\n")) {
@@ -91,7 +89,7 @@ public class UserManager {
         String rawText = Arrays.toString(users.values().toArray());
         rawText = rawText.replace(", ", "\n").replace("[", "").replace("]", "");
         fileRawText = rawText;
-        FileHandler.write(USER_FILE_EXT, fileRawText);
+        FileHandler.writeUserFile(rawText);
     }
 
 

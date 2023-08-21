@@ -95,12 +95,8 @@ public class Vault {
                 newFilesAdded = true;
             }
             if (addNewFiles || user.fileProfiles.containsKey(nextFileName)) {
-                String decryptedFileContents = FileHandler.read(FileHandler.DECRYPTED_VAULT_EXT + nextFileName);
-                String fileKey = user.fileProfiles.get(nextFileName).getKey();
-                String fileIV = user.fileProfiles.get(nextFileName).getIV();
-                String encryptedFileContents = Encryption.encrypt(decryptedFileContents, fileKey, fileIV);
-                String hashedFileName = Encryption.hashName(nextFileName, fileIV);
-                FileHandler.write(FileHandler.ENCRYPTED_VAULT_EXT + hashedFileName, encryptedFileContents);
+                FileProfile fileProfile = user.fileProfiles.get(nextFileName);
+                FileHandler.encryptFile(fileProfile.getName(), fileProfile.getKey(), fileProfile.getIV());
             }
         }
         if (newFilesAdded)

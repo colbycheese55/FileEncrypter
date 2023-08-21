@@ -2,14 +2,71 @@ package src;
 import java.io.*;
 import java.util.*;
 
+import javax.crypto.Cipher;
+import javax.crypto.CipherOutputStream;
+
 public class FileHandler {
     public static String PROGRAM_PATH = "";
-    public static String ENCRYPTED_VAULT_EXT = "encrypted-storage\\";
-    public static String DECRYPTED_VAULT_EXT = "unlocked-storage\\";
+    public static final String ENCRYPTED_VAULT_EXT = "encrypted-storage\\";
+    public static final String DECRYPTED_VAULT_EXT = "unlocked-storage\\";
+    public static final String USER_FILE_EXT = "USER_FILE.txt";
+    public static final int BUFFER_SIZE = 1024;
 
-    public static String read(String relativePath) {
+    // FILE IN / OUT (with encryption as needed)
+    public static void encryptFile(String fileName, String password, String IV) {
+        File encryptedFile = new File(PROGRAM_PATH + ENCRYPTED_VAULT_EXT + Encryption.hashName(fileName, IV));
+        File decryptedFile = new File(PROGRAM_PATH + DECRYPTED_VAULT_EXT + fileName);
+        Cipher cipher = Encryption.getCipher(Cipher.ENCRYPT_MODE, password, IV);
+
+        try (
+            FileInputStream inStream = new FileInputStream(decryptedFile); 
+            FileOutputStream fos = new FileOutputStream(encryptedFile, false);
+            CipherOutputStream outStream = new CipherOutputStream(fos, cipher)) {
+            byte[] buffer = new byte[BUFFER_SIZE];
+
+            while (true) {
+                int bytesRead = inStream.read(buffer);
+                if (bytesRead == -1) break;
+                if (bytesRead != BUFFER_SIZE) buffer = Arrays.copyOf(buffer, bytesRead);
+                outStream.write(buffer);
+                buffer = new byte[BUFFER_SIZE];
+            }
+
+            inStream.close();
+            outStream.close();
+
+        } catch(IOException e) {e.printStackTrace();}
+    }
+    public static boolean decryptFile(String fileName, String password, String IV) {
+        File encryptedFile = new File(PROGRAM_PATH + ENCRYPTED_VAULT_EXT + Encryption.hashName(fileName, IV));
+        if (!encryptedFile.exists())
+            return false;
+        File decryptedFile = new File(PROGRAM_PATH + DECRYPTED_VAULT_EXT + fileName);
+        Cipher cipher = Encryption.getCipher(Cipher.DECRYPT_MODE, password, IV);
+
+        try (
+            FileInputStream inStream = new FileInputStream(encryptedFile); 
+            FileOutputStream fos = new FileOutputStream(decryptedFile, false);
+            CipherOutputStream outStream = new CipherOutputStream(fos, cipher)) {
+            byte[] buffer = new byte[BUFFER_SIZE];
+
+            while (true) {
+                int bytesRead = inStream.read(buffer);
+                if (bytesRead == -1) break;
+                if (bytesRead != BUFFER_SIZE) buffer = Arrays.copyOf(buffer, bytesRead);
+                outStream.write(buffer);
+                buffer = new byte[BUFFER_SIZE];
+            }
+
+            inStream.close();
+            outStream.close();
+
+        } catch(IOException e) {e.printStackTrace();}
+        return true;
+    }
+    public static String readUserFile() {
         try {
-            File file = new File(PROGRAM_PATH + relativePath);
+            File file = new File(PROGRAM_PATH + USER_FILE_EXT);
             Scanner reader = new Scanner(file);
             String output = "";
             if (reader.hasNextLine()) // first line
@@ -18,35 +75,31 @@ public class FileHandler {
                 output += "\n" + reader.nextLine();
             reader.close();
             return output;
-        }
-    catch (FileNotFoundException e) {/*System.out.println("File not found!");*/}
-    return null;
+        } catch (FileNotFoundException e) {System.out.println("File not found!");}
+        return null;
     }
-    public static void write(String relativePath, String contents) {
+    public static void writeUserFile(String in) {
         try {
-            File file = new File(PROGRAM_PATH + relativePath);
+            File file = new File(PROGRAM_PATH + USER_FILE_EXT);
             FileWriter writer = new FileWriter(file);
-            writer.write(contents);
+            writer.write(in);
             writer.close();
         }
         catch (IOException e) {e.printStackTrace();}
     }
+
+
+    // HELPER METHODS
     public static String[] openVault(User user) {
-        ArrayList<String> invalidFileNames = new ArrayList<String>();
+        ArrayList<String> missingFileNames = new ArrayList<String>();
 
         for (Map.Entry<String, FileProfile> upNext: user.fileProfiles.entrySet()) {
-            String decryptedFileName = upNext.getValue().getName();
-            String fileIV = upNext.getValue().getIV();
-            String encryptedFileName = Encryption.hashName(decryptedFileName, fileIV);
-            String encryptedFileContents = read(ENCRYPTED_VAULT_EXT + encryptedFileName);
-            if (encryptedFileContents == null) {
-                invalidFileNames.add(decryptedFileName);
-                continue;
-            }
-            String decryptedFileContents = Encryption.decrypt(encryptedFileContents, upNext.getValue().getKey(), fileIV);
-            write(DECRYPTED_VAULT_EXT + decryptedFileName, decryptedFileContents);
+            FileProfile fileProfile = upNext.getValue();
+            boolean success = decryptFile(fileProfile.getName(), fileProfile.getKey(), fileProfile.getIV());
+            if (success == false)
+                missingFileNames.add(fileProfile.getName());
         }
-        return invalidFileNames.toArray(new String[0]);
+        return missingFileNames.toArray(new String[0]);
     }
     public static void closeVault() {
         for (String upNext: getFilenamesAtPath(DECRYPTED_VAULT_EXT))
@@ -59,7 +112,7 @@ public class FileHandler {
     public static void delete(String relativePath) {
         File file = new File(PROGRAM_PATH + relativePath);
         file.delete();
-    }
+    }    
 }
 
 

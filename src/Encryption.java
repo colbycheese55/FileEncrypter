@@ -1,6 +1,8 @@
 package src;
 import javax.crypto.*;
 import javax.crypto.spec.*;
+
+import java.security.GeneralSecurityException;
 import java.security.spec.*;
 import java.util.*;
 
@@ -37,7 +39,7 @@ public class Encryption {
             byte[] decrypted = cipher.doFinal(code);
             return decrypted;
         } 
-        catch (BadPaddingException bpe) {/*bpe.printStackTrace();*/}
+        catch (BadPaddingException bpe) {bpe.printStackTrace();}
         catch (Exception e) {e.printStackTrace();}
         return null;
     }
@@ -70,5 +72,20 @@ public class Encryption {
         String hash = encrypt(fileName, fileName, IV);
         hash = hash.replace("/", ".");
         return "file_" + hash + "_.txt";
+    }
+
+
+
+
+
+    public static Cipher getCipher(int mode, String password, String initializationVector) {
+        try {
+            IvParameterSpec IV = new IvParameterSpec(Base64.getDecoder().decode(initializationVector));
+            SecretKeySpec KEY = getKeyFromPassword(password);
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(mode, KEY, IV);
+            return cipher;
+        } catch (GeneralSecurityException e) {e.printStackTrace();}
+        return null;
     }
 }

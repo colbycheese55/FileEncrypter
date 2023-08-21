@@ -21,9 +21,9 @@ public class Initializaer {
             System.out.println("Subdirectory made: " + decryptedVaultDir.getName());
             itemsCreated = true;
         }
-        File userFile = new File(FileHandler.PROGRAM_PATH + UserManager.USER_FILE_EXT);
+        File userFile = new File(FileHandler.PROGRAM_PATH + FileHandler.USER_FILE_EXT);
         if (!userFile.exists()) {
-            FileHandler.write(UserManager.USER_FILE_EXT, "");
+            FileHandler.writeUserFile("");
             System.out.println(userFile.getName() + " made");
             itemsCreated = true;
         }
