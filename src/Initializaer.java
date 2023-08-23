@@ -23,7 +23,8 @@ public class Initializaer {
         }
         File userFile = new File(FileHandler.PROGRAM_PATH + FileHandler.USER_FILE_EXT);
         if (!userFile.exists()) {
-            FileHandler.writeUserFile("");
+            String defaultIV = Encryption.generateSecureToken();
+            FileHandler.writeUserFile(defaultIV + "&&");
             System.out.println(userFile.getName() + " made");
             itemsCreated = true;
         }

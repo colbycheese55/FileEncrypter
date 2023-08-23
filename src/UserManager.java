@@ -1,24 +1,24 @@
 package src;
 import java.util.*;
+import java.util.Map.Entry;
 
 public class UserManager{
     private HashMap<Integer, EncryptedUser> users;
+    //private HashMap<String, Integer> fileCounts;
     private String fileRawText;
 
     public UserManager() {
         users = new HashMap<Integer, EncryptedUser>();
-
+        //fileCounts = new HashMap<String, Integer>();
         fileRawText = FileHandler.readUserFile();
-        if (fileRawText.equals(""))
-            return;
-        for (String rawUserText: fileRawText.split("\n")) {
-            String[] components = rawUserText.split("\s");
-            String rawText = "";
-            if (components.length == 3) 
-                rawText = components[2];
-            EncryptedUser encryptedUser = new EncryptedUser(components[0], components[1], rawText);
-            users.put(Integer.valueOf(components[0]), encryptedUser);
-        }
+
+        String[] sections = fileRawText.split("\\&\\&");
+        Encryption.setDefaultIV(sections[0]);
+        if (sections.length >= 2)
+            EncryptedUser.importUsers(sections[1], users);
+        // if (sections.length >= 3)
+        //     FileCount.importFileCounts(sections[2], fileCounts);
+            
     }
 
     // VERIFICATION METHODS
@@ -86,14 +86,15 @@ public class UserManager{
         regenerateRawText();        
     }
     private void regenerateRawText() {
-        String rawText = Arrays.toString(users.values().toArray());
-        rawText = rawText.replace(", ", "\n").replace("[", "").replace("]", "");
+        String rawText = Encryption.getDefaultIV() + "&&";
+        rawText += EncryptedUser.toString(users) + "&&";
+        //rawText += FileCount.toString(fileCounts) + "&&";
         fileRawText = rawText;
         FileHandler.writeUserFile(rawText);
     }
 
 
-    private class EncryptedUser {
+    private static class EncryptedUser {
         public String hashedName, encryptedName, rawText;
 
         public EncryptedUser(String hashedName, String encryptedName, String rawText) {
@@ -105,5 +106,96 @@ public class UserManager{
         public String toString() {
             return hashedName + " " + encryptedName + " " + rawText;
         }
+        public static void importUsers(String in, HashMap<Integer, EncryptedUser> users) {
+            if (in.equals(""))
+                return;
+            for (String rawUserText: in.split("\n")) {
+                String[] components = rawUserText.split("\s");
+                String rawText = "";
+                if (components.length == 3) 
+                    rawText = components[2];
+                EncryptedUser encryptedUser = new EncryptedUser(components[0], components[1], rawText);
+                users.put(Integer.valueOf(components[0]), encryptedUser);
+        }}
+        public static String toString(HashMap<Integer, EncryptedUser> users) {
+            String rawText = Arrays.toString(users.values().toArray());
+            return rawText.replace(", ", "\n").replace("[", "").replace("]", "");
+        }
     }
+
+    // private static class FileCount {
+    //     public static void importFileCounts(String in, HashMap<String, Integer> fileCounts) {
+    //         for (String item: in.split("\n")) {
+    //             String[] components = item.split("\s");
+    //             fileCounts.put(components[0], Integer.valueOf(components[1]));
+    //     }}
+    //     public static String toString(HashMap<String, Integer> fileCounts) {
+    //         String out = "";
+    //         for (Entry<String, Integer> entry: fileCounts.entrySet())
+    //             out += entry.getKey() + " " + entry.getValue() + "\n";
+    //         return out;
+    //         }
+    // }
+
+    // private static class SharedFile {
+    //     public String encryptedFileProfile;
+    //     public int receivingUser;
+    //     public boolean OTP; // 1 time password
+
+    //     public SharedFile(String encryptedFileProfile, int receivingUser, boolean OTP) { // TODO
+    //         this.encryptedFileProfile = encryptedFileProfile;
+    //         this.receivingUser = receivingUser;
+    //         this.OTP = OTP;
+    //     }
+    //     public SharedFile(FileProfile fileProfile, String receivingUser, String password, boolean OTP) {
+    //         this.encryptedFileProfile = Encryption.encrypt(fileProfile.toString(), password);
+    //         this.receivingUser = receivingUser.hashCode();
+    //         this.OTP = OTP;
+    //     }
+
+    //     public String toString() {
+    //         return receivingUser + "|" + encryptedFileProfile + "|" + OTP;
+    //     }
+    //     public static void importSharedFiles(String in, HashMap<Integer, Set<SharedFile>> sharedFiles) {
+    //         for (String item: in.split("\n")) {
+    //             String[] components = item.split("\s");
+    //             Set<SharedFile> files = sharedFiles.get(Integer.valueOf(components[0]));
+    //             if (files == null)
+    //                 files = new HashSet<SharedFile>();
+    //             SharedFile newSharedFile = new SharedFile(components[1], Integer.valueOf(components[0]), Boolean.valueOf(components[2]));
+    //             files.add(newSharedFile);
+    //         }
+    //     }
+    //     public String toString(HashMap<Integer, Set<SharedFile>> sharedFiles) {
+    //         String out = "";
+    //         for (Set<SharedFile> files: sharedFiles.values()) {
+    //             for (SharedFile sharedFile: files)
+    //                 out += sharedFile.toString() + "\n";
+    //         }
+    //         return out;
+    //     }
+    // }
+
+
+    // public void changeFileCount(String fileName, String IV, String change) {
+    //     String fileNameHash = Encryption.hashName(fileName, IV);
+    //     switch (change) {
+    //         case "+1":
+    //             if (!fileCounts.containsKey(fileNameHash))
+    //                 fileCounts.put(fileNameHash, 0);
+    //             fileCounts.put(fileNameHash, fileCounts.get(fileNameHash) + 1);
+    //             break;
+    //         case "-1":
+    //             fileCounts.put(fileNameHash, fileCounts.get(fileNameHash) - 1);
+    //             if (fileCounts.get(fileNameHash) <= 0)
+    //                 fileCounts.remove(fileNameHash);
+    //             break;
+    //         case "delete":
+    //             fileCounts.remove(fileNameHash);
+    //             break;
+    //         default:
+    //             throw new IllegalArgumentException();
+    //     }
+    //     regenerateRawText();
+    // }
 }
