@@ -78,6 +78,7 @@ public class Vault {
         for (String fileName: filesToShare) {
             FileProfile fileProfile = user.fileProfiles.get(fileName);
             otherUser.fileProfiles.put(fileName, fileProfile);
+            userManager.changeFileCount(fileName, fileProfile.getIV(), "+1");
         }
         FileHandler.closeVault();
         FileHandler.openVault(user);
@@ -85,38 +86,38 @@ public class Vault {
         System.out.println("Successfully shared " + filesToShare.length + " file(s) with " + otherUser.getName() + ". " + user.getName() + " is still logged in\n");
     }
     private void saveFiles(boolean addNewFiles) {
-        boolean newFilesAdded = false;
         for (String nextFileName: FileHandler.getFilenamesAtPath(FileHandler.DECRYPTED_VAULT_EXT)) {
             if (addNewFiles && !user.fileProfiles.containsKey(nextFileName)) {
                 String key = Encryption.generateSecureToken();
                 String IV = Encryption.generateSecureToken();
                 FileProfile newFileProfile = new FileProfile(nextFileName, key, IV);
                 user.fileProfiles.put(nextFileName, newFileProfile);
-                newFilesAdded = true;
+                userManager.changeFileCount(nextFileName, newFileProfile.getIV(), "+1");
             }
             if (addNewFiles || user.fileProfiles.containsKey(nextFileName)) {
                 FileProfile fileProfile = user.fileProfiles.get(nextFileName);
                 FileHandler.encryptFile(fileProfile.getName(), fileProfile.getKey(), fileProfile.getIV());
             }
         }
-        if (newFilesAdded)
-            userManager.updateUserFile(user);
+        userManager.updateUserFile(user);
     }
     private void removeFiles(boolean deleteFromAllUsers) {
-        boolean removedFiles = false;
         ArrayList<String> toRemove = new ArrayList<String>();
         for (FileProfile upNext: user.fileProfiles.values()) // adding names from the user's fileprofiles
             toRemove.add(upNext.getName());
         for (String upNext: FileHandler.getFilenamesAtPath(FileHandler.DECRYPTED_VAULT_EXT)) // removing names from the list from the open vault
             toRemove.remove(upNext);
         for (String upNext: toRemove) { // removing fileprofiles from the user
-            if (deleteFromAllUsers)
-                FileHandler.delete(FileHandler.ENCRYPTED_VAULT_EXT + Encryption.hashName(upNext, user.fileProfiles.get(upNext).getIV()));
+            String IV = user.fileProfiles.get(upNext).getIV();
+            if (deleteFromAllUsers) {
+                FileHandler.delete(FileHandler.ENCRYPTED_VAULT_EXT + Encryption.hashName(upNext, IV));
+                userManager.changeFileCount(upNext, IV, "delete");
+            }
+            else 
+                userManager.changeFileCount(upNext, IV, "-1");
             user.fileProfiles.remove(upNext);
-            removedFiles = true;
         }
-        if (removedFiles)
-            userManager.updateUserFile(user);
+        userManager.updateUserFile(user);
     }
     private String getVaultInfo() {
         return user.getName() + " is signed in, with " + user.fileProfiles.size() + " file(s) available";

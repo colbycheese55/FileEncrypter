@@ -4,20 +4,20 @@ import java.util.Map.Entry;
 
 public class UserManager{
     private HashMap<Integer, EncryptedUser> users;
-    //private HashMap<String, Integer> fileCounts;
+    private HashMap<String, Integer> fileCounts;
     private String fileRawText;
 
     public UserManager() {
         users = new HashMap<Integer, EncryptedUser>();
-        //fileCounts = new HashMap<String, Integer>();
+        fileCounts = new HashMap<String, Integer>();
         fileRawText = FileHandler.readUserFile();
 
         String[] sections = fileRawText.split("\\&\\&");
         Encryption.setDefaultIV(sections[0]);
         if (sections.length >= 2)
             EncryptedUser.importUsers(sections[1], users);
-        // if (sections.length >= 3)
-        //     FileCount.importFileCounts(sections[2], fileCounts);
+        if (sections.length >= 3)
+            FileCount.importFileCounts(sections[2], fileCounts);
             
     }
 
@@ -88,7 +88,7 @@ public class UserManager{
     private void regenerateRawText() {
         String rawText = Encryption.getDefaultIV() + "&&";
         rawText += EncryptedUser.toString(users) + "&&";
-        //rawText += FileCount.toString(fileCounts) + "&&";
+        rawText += FileCount.toString(fileCounts) + "&&";
         fileRawText = rawText;
         FileHandler.writeUserFile(rawText);
     }
@@ -123,19 +123,19 @@ public class UserManager{
         }
     }
 
-    // private static class FileCount {
-    //     public static void importFileCounts(String in, HashMap<String, Integer> fileCounts) {
-    //         for (String item: in.split("\n")) {
-    //             String[] components = item.split("\s");
-    //             fileCounts.put(components[0], Integer.valueOf(components[1]));
-    //     }}
-    //     public static String toString(HashMap<String, Integer> fileCounts) {
-    //         String out = "";
-    //         for (Entry<String, Integer> entry: fileCounts.entrySet())
-    //             out += entry.getKey() + " " + entry.getValue() + "\n";
-    //         return out;
-    //         }
-    // }
+    private static class FileCount {
+        public static void importFileCounts(String in, HashMap<String, Integer> fileCounts) {
+            for (String item: in.split("\n")) {
+                String[] components = item.split("\s");
+                fileCounts.put(components[0], Integer.valueOf(components[1]));
+        }}
+        public static String toString(HashMap<String, Integer> fileCounts) {
+            String out = "";
+            for (Entry<String, Integer> entry: fileCounts.entrySet())
+                out += entry.getKey() + " " + entry.getValue() + "\n";
+            return out;
+            }
+    }
 
     // private static class SharedFile {
     //     public String encryptedFileProfile;
@@ -177,25 +177,26 @@ public class UserManager{
     // }
 
 
-    // public void changeFileCount(String fileName, String IV, String change) {
-    //     String fileNameHash = Encryption.hashName(fileName, IV);
-    //     switch (change) {
-    //         case "+1":
-    //             if (!fileCounts.containsKey(fileNameHash))
-    //                 fileCounts.put(fileNameHash, 0);
-    //             fileCounts.put(fileNameHash, fileCounts.get(fileNameHash) + 1);
-    //             break;
-    //         case "-1":
-    //             fileCounts.put(fileNameHash, fileCounts.get(fileNameHash) - 1);
-    //             if (fileCounts.get(fileNameHash) <= 0)
-    //                 fileCounts.remove(fileNameHash);
-    //             break;
-    //         case "delete":
-    //             fileCounts.remove(fileNameHash);
-    //             break;
-    //         default:
-    //             throw new IllegalArgumentException();
-    //     }
-    //     regenerateRawText();
-    // }
+    public void changeFileCount(String fileName, String IV, String change) {
+        String fileNameHash = Encryption.hashName(fileName, IV);
+        switch (change) {
+            case "+1":
+                if (!fileCounts.containsKey(fileNameHash))
+                    fileCounts.put(fileNameHash, 0);
+                fileCounts.put(fileNameHash, fileCounts.get(fileNameHash) + 1);
+                break;
+            case "-1":
+                fileCounts.put(fileNameHash, fileCounts.get(fileNameHash) - 1);
+                if (fileCounts.get(fileNameHash) <= 0) {
+                    fileCounts.remove(fileNameHash);
+                    FileHandler.delete(FileHandler.ENCRYPTED_VAULT_EXT + fileNameHash);
+                }
+                break;
+            case "delete":
+                fileCounts.remove(fileNameHash);
+                break;
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
 }
