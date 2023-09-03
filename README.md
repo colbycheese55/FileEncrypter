@@ -1,7 +1,7 @@
 # FileEncrypter
 
 ## Introduction
-The program serves as an encrypted vault for text files. Multiple users can create accounts and have their own independent vaults. Besides just, encrypting and decrypting files, convenience features such as sharing files with another user are implemented. 
+The program serves as an encrypted vault for files of any filetype. Multiple users can create accounts and have their own independent vaults. Besides just, encrypting and decrypting files, convenience features such as sharing files with another user are implemented. 
 
 Note: _This is a personal educational project, and should not be used to secure anything serious._
 
@@ -34,7 +34,7 @@ The `encrypted-storage` directory holds encrypted vault contents, and the `USER_
 **Flags:** add flags after the option with a dash, like `quit -ad`
 - `s`- Save changes to already registered files only, without adding new files
 - `a`- Save changes to files and add any new files
-- `r`- Remove access to this file from the current user, without deleting it
+- `r`- Remove access to this file from the current user, without deleting it. If no other users have access, the file will be deleted
 - `d`- Delete this file entirely, removing access from all users
 
 ## Other Operation Info

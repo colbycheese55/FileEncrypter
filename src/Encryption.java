@@ -36,7 +36,7 @@ public class Encryption {
             byte[] decrypted = cipher.doFinal(code);
             return decrypted;
         } 
-        catch (BadPaddingException bpe) {bpe.printStackTrace();}
+    catch (BadPaddingException bpe) {/*bpe.printStackTrace();*/}
         catch (Exception e) {e.printStackTrace();}
         return null;
     }
