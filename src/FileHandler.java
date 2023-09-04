@@ -91,14 +91,18 @@ public class FileHandler {
 
     // HELPER METHODS
     public static String[] openVault(User user) {
+        ProgressBar progressBar = new ProgressBar("Opening the Vault: ", ProgressBar.DEFAULT_LENGTH);
         ArrayList<String> missingFileNames = new ArrayList<String>();
-
-        for (Map.Entry<String, FileProfile> upNext: user.fileProfiles.entrySet()) {
-            FileProfile fileProfile = upNext.getValue();
+        ArrayList<FileProfile> fileList = new ArrayList<FileProfile>(user.fileProfiles.values());
+        
+        for (int i = 0; i < fileList.size(); i++) {
+            FileProfile fileProfile = fileList.get(i);
             boolean success = decryptFile(fileProfile.getName(), fileProfile.getKey(), fileProfile.getIV());
             if (success == false)
                 missingFileNames.add(fileProfile.getName());
+            progressBar.update((double) i / fileList.size());
         }
+        progressBar.complete();
         return missingFileNames.toArray(new String[0]);
     }
     public static void closeVault() {

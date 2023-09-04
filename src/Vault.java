@@ -86,7 +86,11 @@ public class Vault {
         System.out.println("Successfully shared " + filesToShare.length + " file(s) with " + otherUser.getName() + ". " + user.getName() + " is still logged in\n");
     }
     private void saveFiles(boolean addNewFiles) {
-        for (String nextFileName: FileHandler.getFilenamesAtPath(FileHandler.DECRYPTED_VAULT_EXT)) {
+        ProgressBar progressBar = new ProgressBar("Saving Files: ", ProgressBar.DEFAULT_LENGTH);
+        String[] fileNames = FileHandler.getFilenamesAtPath(FileHandler.DECRYPTED_VAULT_EXT);
+        
+        for (int i = 0; i < fileNames.length; i++) {
+            String nextFileName = fileNames[i];
             if (addNewFiles && !user.fileProfiles.containsKey(nextFileName)) {
                 String key = Encryption.generateSecureToken();
                 String IV = Encryption.generateSecureToken();
@@ -98,8 +102,10 @@ public class Vault {
                 FileProfile fileProfile = user.fileProfiles.get(nextFileName);
                 FileHandler.encryptFile(fileProfile.getName(), fileProfile.getKey(), fileProfile.getIV());
             }
+            progressBar.update((double) i / fileNames.length);
         }
         userManager.updateUserFile(user);
+        progressBar.complete();
     }
     private void removeFiles(boolean deleteFromAllUsers) {
         ArrayList<String> toRemove = new ArrayList<String>();
