@@ -79,6 +79,6 @@ public class Encryption {
     public static String hashName(String fileName, String IV) {
         String hash = encrypt(fileName, fileName, IV);
         hash = hash.replace("/", ".");
-        return "file_" + hash + "_.txt";
+        return "file_" + hash + "_.bin";
     }    
 }
