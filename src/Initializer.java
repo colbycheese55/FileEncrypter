@@ -1,7 +1,7 @@
 package src;
 import java.io.*;
 
-public class Initializaer {
+public class Initializer {
     private static final boolean TESTING_MODE = true;
 
     public static void main() { // must create: user file, encrypted vault subdirectory, decrypted vault subdirectory

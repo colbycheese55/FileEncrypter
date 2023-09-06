@@ -3,7 +3,7 @@ import java.util.Scanner;
 
 public class Driver {
     public static void main(String[] args) {
-        Initializaer.main();
+        Initializer.main();
         Scanner scan = new Scanner(System.in);
         UserManager userManager = new UserManager();
 
