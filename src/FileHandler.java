@@ -1,16 +1,17 @@
 package src;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
-
-import javax.crypto.Cipher;
-import javax.crypto.CipherOutputStream;
+import javax.crypto.*;
 
 public class FileHandler {
-    public static String PROGRAM_PATH = "";
+    public static String PROGRAM_PATH = ""; // updated by Initializer.java
     public static final String ENCRYPTED_VAULT_EXT = "encrypted-storage\\";
     public static final String DECRYPTED_VAULT_EXT = "unlocked-storage\\";
     public static final String USER_FILE_EXT = "USER_FILE.txt";
-    public static final int BUFFER_SIZE = 1024;
+    private static final int BUFFER_SIZE = 1024;
+    private static long[] vaultOpeningTime = new long[2]; // {when the vault started the open, when it finished opening}
 
     // FILE IN / OUT (with encryption as needed)
     public static void encryptFile(String fileName, String password, String IV) {
@@ -24,7 +25,7 @@ public class FileHandler {
             CipherOutputStream outStream = new CipherOutputStream(fos, cipher)) {
             byte[] buffer = new byte[BUFFER_SIZE];
 
-            while (true) {
+            while (true) { // TODO: clean?
                 int bytesRead = inStream.read(buffer);
                 if (bytesRead == -1) break;
                 if (bytesRead != BUFFER_SIZE) buffer = Arrays.copyOf(buffer, bytesRead);
@@ -94,6 +95,7 @@ public class FileHandler {
         ProgressBar progressBar = new ProgressBar("Opening the Vault: ", ProgressBar.DEFAULT_LENGTH);
         ArrayList<String> missingFileNames = new ArrayList<String>();
         ArrayList<FileProfile> fileList = new ArrayList<FileProfile>(user.fileProfiles.values());
+        vaultOpeningTime[0] = System.currentTimeMillis();
         
         for (int i = 0; i < fileList.size(); i++) {
             FileProfile fileProfile = fileList.get(i);
@@ -102,6 +104,7 @@ public class FileHandler {
                 missingFileNames.add(fileProfile.getName());
             progressBar.update((double) i / fileList.size());
         }
+        vaultOpeningTime[1] = System.currentTimeMillis();
         progressBar.complete();
         return missingFileNames.toArray(new String[0]);
     }
@@ -117,6 +120,17 @@ public class FileHandler {
         File file = new File(PROGRAM_PATH + relativePath);
         file.delete();
     }    
+    public static boolean hasFileBeenModified(String filename) {
+        try {
+            File file = new File(PROGRAM_PATH + DECRYPTED_VAULT_EXT + filename);
+            BasicFileAttributes attributes = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
+            long creationTime = attributes.creationTime().toMillis();
+            long modifiedTime = attributes.lastModifiedTime().toMillis();
+            if (creationTime > vaultOpeningTime[0] && modifiedTime > vaultOpeningTime[0] && creationTime < vaultOpeningTime[1] && modifiedTime < vaultOpeningTime[1])
+                return false;
+        } catch (IOException ioe) {ioe.printStackTrace();}
+        return true;
+    }
 }
 
 

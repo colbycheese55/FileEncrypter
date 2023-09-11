@@ -98,6 +98,8 @@ public class Vault {
                 user.fileProfiles.put(nextFileName, newFileProfile);
                 userManager.changeFileCount(nextFileName, newFileProfile.getIV(), "+1");
             }
+            else if (FileHandler.hasFileBeenModified(nextFileName) == false)
+                continue;
             if (addNewFiles || user.fileProfiles.containsKey(nextFileName)) {
                 FileProfile fileProfile = user.fileProfiles.get(nextFileName);
                 FileHandler.encryptFile(fileProfile.getName(), fileProfile.getKey(), fileProfile.getIV());
