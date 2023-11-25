@@ -10,9 +10,11 @@ public class Vault {
         this.scan = scan;
         this.userManager = userManager;
         this.user = user;  
+        Sharing.checkEntries(user, scan, userManager);
         String[] invalidFiles = FileHandler.openVault(user);
         if (invalidFiles.length > 0)
             removeInvalidFiles(invalidFiles);
+        userManager.updateUserFile(user);
     }
 
     public void mainMenu() {
@@ -26,7 +28,7 @@ public class Vault {
                     listFiles();
                     break;
                 case "share": // share files with another user
-                    shareWithAnotherUser();
+                    shareWithAnotherUser(entryComponents);
                     break;
                 case "info": // print info about the user
                     System.out.println(getVaultInfo());
@@ -70,20 +72,12 @@ public class Vault {
         System.out.println("Available File(s): (" + user.fileProfiles.size() + ")");
         System.out.println(Arrays.toString(user.fileProfiles.keySet().toArray()) + "\n");
     }
-    private void shareWithAnotherUser() {
-        saveFiles(true);
-        System.out.println("Delete any items from your open vault you do NOT wish to share, THEN authenticate the user you are sharing the files with");
-        User otherUser = User.authenticate(scan, userManager);
-        String[] filesToShare = FileHandler.getFilenamesAtPath(FileHandler.DECRYPTED_VAULT_EXT);
-        for (String fileName: filesToShare) {
-            FileProfile fileProfile = user.fileProfiles.get(fileName);
-            otherUser.fileProfiles.put(fileName, fileProfile);
-            userManager.changeFileCount(fileName, fileProfile.getIV(), "+1");
+    private void shareWithAnotherUser(String[] entries) {
+        if (entries.length != 2) {
+            System.out.println("NO SHARING FLAG GIVEN");
+            return;
         }
-        FileHandler.closeVault();
-        FileHandler.openVault(user);
-        userManager.updateUserFile(otherUser);
-        System.out.println("Successfully shared " + filesToShare.length + " file(s) with " + otherUser.getName() + ". " + user.getName() + " is still logged in\n");
+        Sharing.share(entries[1], user, scan, userManager);
     }
     private void saveFiles(boolean addNewFiles) {
         ProgressBar progressBar = new ProgressBar("Saving Files: ", ProgressBar.DEFAULT_LENGTH);

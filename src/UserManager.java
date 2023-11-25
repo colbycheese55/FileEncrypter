@@ -6,6 +6,7 @@ public class UserManager{
     private HashMap<Integer, EncryptedUser> users;
     private HashMap<String, Integer> fileCounts;
     private String fileRawText;
+    public ShareLog shareLog;
 
     public UserManager() {
         users = new HashMap<Integer, EncryptedUser>();
@@ -18,6 +19,10 @@ public class UserManager{
             EncryptedUser.importUsers(sections[1], users);
         if (sections.length >= 3)
             FileCount.importFileCounts(sections[2], fileCounts);
+        if (sections.length >= 4)
+            shareLog = new ShareLog(sections[3]);
+        else
+            shareLog = new ShareLog(null);
             
     }
 
@@ -89,6 +94,7 @@ public class UserManager{
         String rawText = Encryption.getDefaultIV() + "&&";
         rawText += EncryptedUser.toString(users) + "&&";
         rawText += FileCount.toString(fileCounts) + "&&";
+        rawText += shareLog.toString() + "&&";
         fileRawText = rawText;
         FileHandler.writeUserFile(rawText);
     }
@@ -136,45 +142,6 @@ public class UserManager{
             return out;
             }
     }
-
-    // private static class SharedFile {
-    //     public String encryptedFileProfile;
-    //     public int receivingUser;
-    //     public boolean OTP; // 1 time password
-
-    //     public SharedFile(String encryptedFileProfile, int receivingUser, boolean OTP) { // TODO
-    //         this.encryptedFileProfile = encryptedFileProfile;
-    //         this.receivingUser = receivingUser;
-    //         this.OTP = OTP;
-    //     }
-    //     public SharedFile(FileProfile fileProfile, String receivingUser, String password, boolean OTP) {
-    //         this.encryptedFileProfile = Encryption.encrypt(fileProfile.toString(), password);
-    //         this.receivingUser = receivingUser.hashCode();
-    //         this.OTP = OTP;
-    //     }
-
-    //     public String toString() {
-    //         return receivingUser + "|" + encryptedFileProfile + "|" + OTP;
-    //     }
-    //     public static void importSharedFiles(String in, HashMap<Integer, Set<SharedFile>> sharedFiles) {
-    //         for (String item: in.split("\n")) {
-    //             String[] components = item.split("\s");
-    //             Set<SharedFile> files = sharedFiles.get(Integer.valueOf(components[0]));
-    //             if (files == null)
-    //                 files = new HashSet<SharedFile>();
-    //             SharedFile newSharedFile = new SharedFile(components[1], Integer.valueOf(components[0]), Boolean.valueOf(components[2]));
-    //             files.add(newSharedFile);
-    //         }
-    //     }
-    //     public String toString(HashMap<Integer, Set<SharedFile>> sharedFiles) {
-    //         String out = "";
-    //         for (Set<SharedFile> files: sharedFiles.values()) {
-    //             for (SharedFile sharedFile: files)
-    //                 out += sharedFile.toString() + "\n";
-    //         }
-    //         return out;
-    //     }
-    // }
 
 
     public void changeFileCount(String fileName, String IV, String change) {
