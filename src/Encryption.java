@@ -1,7 +1,7 @@
 package src;
+
 import javax.crypto.*;
 import javax.crypto.spec.*;
-
 import java.security.GeneralSecurityException;
 import java.security.spec.*;
 import java.util.*;
@@ -17,9 +17,8 @@ public class Encryption {
             Cipher cipher = getCipher(Cipher.ENCRYPT_MODE, password, initializationVector);
             byte[] encrypted = cipher.doFinal(message);
             return encrypted;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } 
+        catch (Exception e) {e.printStackTrace();}
         return null;
     }
     public static String encrypt(String message, String password, String initializationVector) {
@@ -36,7 +35,7 @@ public class Encryption {
             byte[] decrypted = cipher.doFinal(code);
             return decrypted;
         } 
-    catch (BadPaddingException bpe) {/*bpe.printStackTrace();*/}
+        catch (BadPaddingException bpe) {/*bpe.printStackTrace();*/}
         catch (Exception e) {e.printStackTrace();}
         return null;
     }
@@ -55,7 +54,8 @@ public class Encryption {
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
             cipher.init(mode, KEY, IV);
             return cipher;
-        } catch (GeneralSecurityException e) {e.printStackTrace();}
+        } 
+        catch (GeneralSecurityException e) {e.printStackTrace();}
         return null;
     }
     private static SecretKeySpec getKeyFromPassword(String password) {
@@ -65,9 +65,8 @@ public class Encryption {
             SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
             SecretKey secretKey= factory.generateSecret(spec);
             return new SecretKeySpec(secretKey.getEncoded(), "AES");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } 
+        catch (Exception e) {e.printStackTrace();}
         return null;
     }
     public static String generateSecureToken() {

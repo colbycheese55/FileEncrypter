@@ -22,7 +22,7 @@ public class Vault {
         while (true) {
             String[] entryComponents = scan.nextLine().replace(" ", "").split("-", 2);
             if (entryComponents.length == 2)
-                handleFlags(entryComponents[1]);
+                handleFileFlags(entryComponents[1]);
             switch (entryComponents[0]) {
                 case "list": // list available files
                     listFiles();
@@ -49,7 +49,7 @@ public class Vault {
                 default:
                     System.out.println("UNKNOWN ENTRY. TRY AGAIN. ENTER \"print\" TO SEE INSTRUCTIONS OR \"quit\" TO EXIT THE PROGRAM.");
             }}}
-    private void handleFlags(String flags) {
+    private void handleFileFlags(String flags) {
         for (char upNext: flags.toCharArray()) {
             switch (upNext) {
                 case 'a':

@@ -1,4 +1,5 @@
 package src;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -25,7 +26,7 @@ public class FileHandler {
             CipherOutputStream outStream = new CipherOutputStream(fos, cipher)) {
             byte[] buffer = new byte[BUFFER_SIZE];
 
-            while (true) { // TODO: clean?
+            while (true) {
                 int bytesRead = inStream.read(buffer);
                 if (bytesRead == -1) break;
                 if (bytesRead != BUFFER_SIZE) buffer = Arrays.copyOf(buffer, bytesRead);
@@ -76,7 +77,8 @@ public class FileHandler {
                 output += "\n" + reader.nextLine();
             reader.close();
             return output;
-        } catch (FileNotFoundException e) {System.out.println("File not found!");}
+        } 
+        catch (FileNotFoundException e) {System.out.println("File not found!");}
         return null;
     }
     public static void writeUserFile(String in) {
@@ -128,7 +130,8 @@ public class FileHandler {
             long modifiedTime = attributes.lastModifiedTime().toMillis();
             if (creationTime > vaultOpeningTime[0] && modifiedTime > vaultOpeningTime[0] && creationTime < vaultOpeningTime[1] && modifiedTime < vaultOpeningTime[1])
                 return false;
-        } catch (IOException ioe) {ioe.printStackTrace();}
+        } 
+        catch (IOException ioe) {ioe.printStackTrace();}
         return true;
     }
 }
