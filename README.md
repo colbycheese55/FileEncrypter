@@ -30,12 +30,18 @@ The `encrypted-storage` directory holds encrypted vault contents, and the `USER_
 - `re`- Register vault changes by applying the given flags, while staying logged in
 - `log`- Log out of the vault, and be presented with a new sign in prompt; without flags the vault remains unchanged
 - `quit`- Log out of the vault, and terminate the program; without flags the vault remains unchanged
+- `share`- Shares file(s) with another user, use _Sharing Flags_
 
 **Flags:** add flags after the option with a dash, like `quit -ad`
 - `s`- Save changes to already registered files only, without adding new files
 - `a`- Save changes to files and add any new files
 - `r`- Remove access to this file from the current user, without deleting it. If no other users have access, the file will be deleted
 - `d`- Delete this file entirely, removing access from all users
+
+**Sharing Flags:** add flag after _share_, like `share -o`
+- `n`- Share now by authenticating the receiving user
+- `u`- Encrypt the file(s) using the receiver's username, less secure
+- `o`- Encrypt the file(s) using a one-time-password
 
 ## Other Operation Info
 - All text combinations are valid for usernames (except `NEW_USER` and `EXIT`) and passwords
