@@ -23,7 +23,6 @@ The `encrypted-storage` directory holds encrypted vault contents, and the `USER_
 - `list`- List available files
 - `info`- Show user vault info
 - `print`- Re-print the vault control instructions to the terminal
-- `share`- Share files with another user
 - `change`- Change username and / or password
 
 **Flaggable Options:** these options can be followed by a flag(s)

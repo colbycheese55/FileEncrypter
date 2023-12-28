@@ -24,6 +24,7 @@ public class Sharing {
                 System.out.println("Enter another OTP (or \"EXIT\")");
                 in = scan.nextLine();
         }}
+        System.out.print("\n");
         userManager.shareLog.removeOldEntries(sharedFiles, user.getName());
     }
 
@@ -36,6 +37,7 @@ public class Sharing {
                 user.fileProfiles.put(fileProfile.getName(), fileProfile);
                 sharedFiles.remove(i);
                 i--;
+                System.out.println("Unlocked file: " + fileProfile.getName());
         }}
         return startingSize - sharedFiles.size();
     }
@@ -64,7 +66,7 @@ public class Sharing {
         for (String fileName: filesToShare) {
             FileProfile fileProfile = user.fileProfiles.get(fileName);
             otherUser.fileProfiles.put(fileName, fileProfile);
-            userManager.changeFileCount(fileName, fileProfile.getIV(), "+1");
+            userManager.fileCounts.changeFileCount(fileName, fileProfile.getIV(), "+1");;
         }
         FileHandler.closeVault();
         FileHandler.openVault(user);
@@ -84,7 +86,7 @@ public class Sharing {
         for (String fileName: filesToShare) {
             FileProfile fileProfile = user.fileProfiles.get(fileName);
             userManager.shareLog.addEntry(fileProfile, receivingUserName, password);
-            userManager.changeFileCount(fileName, fileProfile.getIV(), "+1");
+            userManager.fileCounts.changeFileCount(fileName, fileProfile.getIV(), "+1");
         }
         FileHandler.openVault(user);
         System.out.println("Successfully shared " + filesToShare.length + " file(s) with " + receivingUserName + ". " + user.getName() + " is still logged in\n");

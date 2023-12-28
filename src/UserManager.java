@@ -1,24 +1,28 @@
 package src;
 import java.util.*;
-import java.util.Map.Entry;
 
 public class UserManager{
     private HashMap<Integer, EncryptedUser> users;
-    private HashMap<String, Integer> fileCounts;
     private String fileRawText;
     public ShareLog shareLog;
+    public FileCountLog fileCounts;
 
     public UserManager() {
         users = new HashMap<Integer, EncryptedUser>();
-        fileCounts = new HashMap<String, Integer>();
         fileRawText = FileHandler.readUserFile();
 
         String[] sections = fileRawText.split("\\&\\&");
+        // get default IV
         Encryption.setDefaultIV(sections[0]);
+        // get current users
         if (sections.length >= 2)
             EncryptedUser.importUsers(sections[1], users);
+        // get file count log
         if (sections.length >= 3)
-            FileCount.importFileCounts(sections[2], fileCounts);
+            fileCounts = new FileCountLog(sections[2]);
+        else
+            fileCounts = new FileCountLog(null);
+        // get share log
         if (sections.length >= 4)
             shareLog = new ShareLog(sections[3]);
         else
@@ -93,7 +97,7 @@ public class UserManager{
     private void regenerateRawText() {
         String rawText = Encryption.getDefaultIV() + "&&";
         rawText += EncryptedUser.toString(users) + "&&";
-        rawText += FileCount.toString(fileCounts) + "&&";
+        rawText += fileCounts.toString() + "&&";
         rawText += shareLog.toString() + "&&";
         fileRawText = rawText;
         FileHandler.writeUserFile(rawText);
@@ -126,44 +130,6 @@ public class UserManager{
         public static String toString(HashMap<Integer, EncryptedUser> users) {
             String rawText = Arrays.toString(users.values().toArray());
             return rawText.replace(", ", "\n").replace("[", "").replace("]", "");
-        }
-    }
-
-    private static class FileCount {
-        public static void importFileCounts(String in, HashMap<String, Integer> fileCounts) {
-            for (String item: in.split("\n")) {
-                String[] components = item.split("\s");
-                fileCounts.put(components[0], Integer.valueOf(components[1]));
-        }}
-        public static String toString(HashMap<String, Integer> fileCounts) {
-            String out = "";
-            for (Entry<String, Integer> entry: fileCounts.entrySet())
-                out += entry.getKey() + " " + entry.getValue() + "\n";
-            return out;
-            }
-    }
-
-
-    public void changeFileCount(String fileName, String IV, String change) {
-        String fileNameHash = Encryption.hashName(fileName, IV);
-        switch (change) {
-            case "+1":
-                if (!fileCounts.containsKey(fileNameHash))
-                    fileCounts.put(fileNameHash, 0);
-                fileCounts.put(fileNameHash, fileCounts.get(fileNameHash) + 1);
-                break;
-            case "-1":
-                fileCounts.put(fileNameHash, fileCounts.get(fileNameHash) - 1);
-                if (fileCounts.get(fileNameHash) <= 0) {
-                    fileCounts.remove(fileNameHash);
-                    FileHandler.delete(FileHandler.ENCRYPTED_VAULT_EXT + fileNameHash);
-                }
-                break;
-            case "delete":
-                fileCounts.remove(fileNameHash);
-                break;
-            default:
-                throw new IllegalArgumentException();
         }
     }
 }

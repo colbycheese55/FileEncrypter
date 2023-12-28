@@ -90,7 +90,7 @@ public class Vault {
                 String IV = Encryption.generateSecureToken();
                 FileProfile newFileProfile = new FileProfile(nextFileName, key, IV);
                 user.fileProfiles.put(nextFileName, newFileProfile);
-                userManager.changeFileCount(nextFileName, newFileProfile.getIV(), "+1");
+                userManager.fileCounts.changeFileCount(nextFileName, newFileProfile.getIV(), "+1");
             }
             else if (FileHandler.hasFileBeenModified(nextFileName) == false)
                 continue;
@@ -112,11 +112,10 @@ public class Vault {
         for (String upNext: toRemove) { // removing fileprofiles from the user
             String IV = user.fileProfiles.get(upNext).getIV();
             if (deleteFromAllUsers) {
-                FileHandler.delete(FileHandler.ENCRYPTED_VAULT_EXT + Encryption.hashName(upNext, IV));
-                userManager.changeFileCount(upNext, IV, "delete");
+                userManager.fileCounts.changeFileCount(upNext, IV, "delete");;
             }
             else 
-                userManager.changeFileCount(upNext, IV, "-1");
+                userManager.fileCounts.changeFileCount(upNext, IV, "-1");
             user.fileProfiles.remove(upNext);
         }
         userManager.updateUserFile(user);
