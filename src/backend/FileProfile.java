@@ -1,4 +1,4 @@
-package src;
+package src.backend;
 public class FileProfile {
     private String name, key, initialVector;
 

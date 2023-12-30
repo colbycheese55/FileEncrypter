@@ -1,4 +1,4 @@
-package src;
+package src.backend;
 
 public class ProgressBar {
     public static final int DEFAULT_LENGTH = 50;

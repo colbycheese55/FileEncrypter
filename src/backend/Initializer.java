@@ -1,4 +1,4 @@
-package src;
+package src.backend;
 import java.io.*;
 
 public class Initializer {

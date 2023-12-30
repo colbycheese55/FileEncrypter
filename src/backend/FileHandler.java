@@ -1,4 +1,4 @@
-package src;
+package src.backend;
 
 import java.io.*;
 import java.nio.file.Files;
