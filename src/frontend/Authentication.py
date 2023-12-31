@@ -2,6 +2,7 @@ import customtkinter as ctk
 
 padding = 10
 font = ("Calibri", 18)
+linkFont = ("Calibri", 18, "italic")
 
 class AuthWindow:
     def __init__(this, userManager, UserClass) -> None:
@@ -13,6 +14,7 @@ class AuthWindow:
         this.root = ctk.CTk()
         this.root.title("Authentication")
         this.root.geometry("250x400")
+        this.root.resizable(False, False)
 
 
         # Row Centering
@@ -34,14 +36,14 @@ class AuthWindow:
         this.enterBtn = ctk.CTkButton(this.root, text="Login", font=("Franklin Gothic Heavy", 20), command=this.onClick, width=100, height=30)
         this.enterBtn.grid(row=6, rowspan=1, column=0, columnspan=3)
 
-        emptyRow = ctk.CTkLabel(this.root, text="", height=150)
+        emptyRow = ctk.CTkLabel(this.root, text="", height=140)
         emptyRow.grid(row=7, rowspan=1, column=0, columnspan=3)
 
-        this.newUserLabel = ctk.CTkLabel(this.root, text="Create a new user", font=font)
+        this.newUserLabel = ctk.CTkLabel(this.root, text="Create a New User", font=linkFont)
         this.newUserLabel.grid(row=8, rowspan=1, column=0, columnspan=3)
         this.newUserLabel.bind("<Button-1>", lambda _: this.setupcreateNewUser())
 
-        this.modifyLabel = ctk.CTkLabel(this.root, text="Modify Credentials", font=font)
+        this.modifyLabel = ctk.CTkLabel(this.root, text="Modify Credentials", font=linkFont)
         this.modifyLabel.grid(row=9, rowspan=1, column=0, columnspan=3)
         this.modifyLabel.bind("<Button-1>", lambda _: this.setupModifyCredentials())
 
