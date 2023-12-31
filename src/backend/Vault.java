@@ -2,84 +2,35 @@ package src.backend;
 import java.util.*;
 
 public class Vault {
-    private Scanner scan;
     private User user;
     private UserManager userManager;
 
-    public Vault(Scanner scan, UserManager userManager, User user) {
-        this.scan = scan;
+    public Vault(UserManager userManager, User user) {
         this.userManager = userManager;
         this.user = user;  
-        Sharing.checkEntries(user, scan, userManager);
+        // TODO fix
+        //Sharing.checkEntries(user, userManager);
         String[] invalidFiles = FileHandler.openVault(user);
         if (invalidFiles.length > 0)
             removeInvalidFiles(invalidFiles);
         userManager.updateUserFile(user);
     }
-
-    public void mainMenu() {
-        printInstructions();
-        while (true) {
-            String[] entryComponents = scan.nextLine().replace(" ", "").split("-", 2);
-            if (entryComponents.length == 2)
-                handleFileFlags(entryComponents[1]);
-            switch (entryComponents[0]) {
-                case "list": // list available files
-                    listFiles();
-                    break;
-                case "share": // share files with another user
-                    shareWithAnotherUser(entryComponents);
-                    break;
-                case "info": // print info about the user
-                    System.out.println(getVaultInfo());
-                    break;
-                case "print": // re-print instructions
-                    printInstructions();
-                    break;
-                case "change": // change user credentials
-                    user.changeCredentials(scan, userManager);
-                    break;
-                case "re": // register
-                    break;
-                case "log": // logout
-                    FileHandler.closeVault();
-                    return;
-                case "quit": // quit the program
-                    System.exit(0);
-                default:
-                    System.out.println("UNKNOWN ENTRY. TRY AGAIN. ENTER \"print\" TO SEE INSTRUCTIONS OR \"quit\" TO EXIT THE PROGRAM.");
-            }}}
-    private void handleFileFlags(String flags) {
-        for (char upNext: flags.toCharArray()) {
-            switch (upNext) {
-                case 'a':
-                    saveFiles(true);
-                    break;
-                case 's':
-                    saveFiles(false);
-                    break;
-                case 'r':
-                    removeFiles(false);
-                    break;
-                case 'd':
-                    removeFiles(true);
-                    break;
-    }}}
     
 
     // MENU OPTIONS
-    private void listFiles() {
-        System.out.println("Available File(s): (" + user.fileProfiles.size() + ")");
-        System.out.println(Arrays.toString(user.fileProfiles.keySet().toArray()) + "\n");
+    public String listFiles() {
+        String list = Arrays.toString(user.fileProfiles.keySet().toArray());
+        list = list.replace(", ", "\n").replace("[", "").replace("]", "");
+        return list;
     }
-    private void shareWithAnotherUser(String[] entries) {
-        if (entries.length != 2) {
-            System.out.println("NO SHARING FLAG GIVEN");
-            return;
-        }
-        Sharing.share(entries[1], user, scan, userManager);
-    }
-    private void saveFiles(boolean addNewFiles) {
+    // private void shareWithAnotherUser(String[] entries) {
+    //     if (entries.length != 2) {
+    //         System.out.println("NO SHARING FLAG GIVEN");
+    //         return;
+    //     }
+    //     Sharing.share(entries[1], user, scan, userManager);
+    // }
+    public void saveFiles(boolean addNewFiles) {
         ProgressBar progressBar = new ProgressBar("Saving Files: ", ProgressBar.DEFAULT_LENGTH);
         String[] fileNames = FileHandler.getFilenamesAtPath(FileHandler.DECRYPTED_VAULT_EXT);
         
@@ -103,7 +54,7 @@ public class Vault {
         userManager.updateUserFile(user);
         progressBar.complete();
     }
-    private void removeFiles(boolean deleteFromAllUsers) {
+    public void removeFiles(boolean deleteFromAllUsers) {
         ArrayList<String> toRemove = new ArrayList<String>();
         for (FileProfile upNext: user.fileProfiles.values()) // adding names from the user's fileprofiles
             toRemove.add(upNext.getName());
@@ -120,12 +71,8 @@ public class Vault {
         }
         userManager.updateUserFile(user);
     }
-    private String getVaultInfo() {
+    public String getVaultInfo() {
         return user.getName() + " is signed in, with " + user.fileProfiles.size() + " file(s) available";
-    }
-    private void printInstructions() {
-        System.out.println("VAULT MENU: What do you wish to do? (list) list available files, (share) share a file, (info) show user info, (re) register, (log) logout, (quit) quit, (print) re-print instructions, (change) change user credentials");
-        System.out.println("Quit, logout, and refresh flags: (s) save preexisting files, (a) save and add new files, (r) remove files for user, (d) delete files for all users\n");
     }
 
     // HELPER METHOD

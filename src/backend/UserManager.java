@@ -41,27 +41,13 @@ public class UserManager{
     }
 
     // User class EXCLUSIVE METHODS
-    public void createNewUser(Scanner scan) {
-        System.out.print("NEW USER CREATION: \nEnter username: ");
-        String username = scan.nextLine();
-        if (hasUsername(username)) {
-            System.out.println("User already exists! Try again with a different username.");
-            createNewUser(scan);
-            return;
-        }
-        if (username.equals("NEW_USER") || username.equals("EXIT")) {
-            System.out.println("Invalid username! Try again with a different username.");
-            createNewUser(scan);
-            return;
-        }
-        System.out.print("Enter password: ");
-        String password = scan.nextLine();
-
+    public boolean createNewUser(String username, String password) {
+        if (hasUsername(username))
+            return false;
         EncryptedUser newUser = new EncryptedUser(Integer.toString(username.hashCode()), Encryption.encrypt(username, password), "");
         users.put(username.hashCode(), newUser);
         regenerateRawText();
-
-        System.out.println("User created, please re-authenticate\n");
+        return true;
     }
     public void changeUserCredentials(String oldUserName, User user) {
         users.remove(oldUserName.hashCode());
