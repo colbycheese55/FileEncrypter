@@ -4,6 +4,11 @@ padding = 10
 font = ("Calibri", 18)
 linkFont = ("Calibri", 18, "italic")
 
+def authenticate(userManager, UserClass) -> any:
+        authWindow = AuthWindow(userManager, UserClass)
+        authWindow.root.mainloop()
+        return authWindow.authUser
+
 class AuthWindow:
     def __init__(this, userManager, UserClass) -> None:
         this.authUser = None
@@ -51,11 +56,6 @@ class AuthWindow:
         # Keybinds
         this.root.bind("<Return>", lambda _: this.onClick())
         this.root.bind("<Control-w>", lambda _: this.root.destroy())
-
-
-    def authenticate(this) -> any:
-        this.root.mainloop()
-        return this.authUser
 
 
     def setupcreateNewUser(this) -> None:

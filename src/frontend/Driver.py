@@ -1,7 +1,7 @@
 import jpype as java
 import os
-from MainMenu import MainMenu
-from Authentication import AuthWindow
+from MainMenu import runMainMenu
+from Authentication import authenticate
 
 
 TESTING = True
@@ -22,11 +22,8 @@ userManager = UserManager()
 
 rerun = True
 while rerun:
-    auth = AuthWindow(userManager, User)
-    user = auth.authenticate()
+    user = authenticate(userManager, User)
     if user is None:
         break
     vault = Vault(userManager, user)
-    menu = MainMenu(vault, FileHandler)
-    rerun = menu.openMenu()
-print("DONE")
+    rerun = runMainMenu(vault, FileHandler)

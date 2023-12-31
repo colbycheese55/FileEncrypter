@@ -1,14 +1,21 @@
 import customtkinter as ctk
 
 
+def runMainMenu(vaultObj, FileHandler) -> bool:
+        menu = MainMenu(vaultObj)
+        menu.updateFilesList()
+        menu.root.mainloop()
+        FileHandler.closeVault()
+        return menu.rerun
+
+
 class MainMenu:
-    def __init__(this, vaultObj, FileHandler) -> None:
+    def __init__(this, vaultObj) -> None:
         this.root = ctk.CTk()
         this.root.title("File Encrypter Menu")
         this.root.protocol("WM_DELETE_WINDOW", lambda: this.systemHandler("quit"))
         
         this.vault = vaultObj
-        this.FileHandler = FileHandler
         this.rerun = False
         padding = 10
 
@@ -97,11 +104,3 @@ class MainMenu:
         this.textBox.insert(ctk.END, fileListing)
         this.textBox.configure(state=ctk.DISABLED)
         this.infoLabel.configure(text=info)
-    
-
-    def openMenu(this) -> bool:
-        this.updateFilesList()
-        this.root.mainloop()
-
-        this.FileHandler.closeVault()
-        return this.rerun
