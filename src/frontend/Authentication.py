@@ -1,5 +1,7 @@
 import customtkinter as ctk
 
+padding = 10
+font = ("Calibri", 18)
 
 class AuthWindow:
     def __init__(this, userManager, UserClass) -> None:
@@ -7,8 +9,6 @@ class AuthWindow:
         this.userManager = userManager
         this.UserClass = UserClass
         this.onClick = this.enterCredentials
-        padding = 10
-        font = ("Calibri", 18)
 
         this.root = ctk.CTk()
         this.root.title("Authentication")
@@ -32,14 +32,18 @@ class AuthWindow:
         this.passwordEntry.grid(row=3, rowspan=1, pady=padding, column=0, columnspan=3)
 
         this.enterBtn = ctk.CTkButton(this.root, text="Login", font=("Franklin Gothic Heavy", 20), command=this.onClick, width=100, height=30)
-        this.enterBtn.grid(row=4, rowspan=1, column=0, columnspan=3)
+        this.enterBtn.grid(row=6, rowspan=1, column=0, columnspan=3)
 
         emptyRow = ctk.CTkLabel(this.root, text="", height=150)
-        emptyRow.grid(row=5, rowspan=1, column=0, columnspan=3)
+        emptyRow.grid(row=7, rowspan=1, column=0, columnspan=3)
 
         this.newUserLabel = ctk.CTkLabel(this.root, text="Create a new user", font=font)
-        this.newUserLabel.grid(row=6, rowspan=1, column=0, columnspan=3)
+        this.newUserLabel.grid(row=8, rowspan=1, column=0, columnspan=3)
         this.newUserLabel.bind("<Button-1>", lambda _: this.setupcreateNewUser())
+
+        this.modifyLabel = ctk.CTkLabel(this.root, text="Modify Credentials", font=font)
+        this.modifyLabel.grid(row=9, rowspan=1, column=0, columnspan=3)
+        this.modifyLabel.bind("<Button-1>", lambda _: this.setupModifyCredentials())
 
 
         # Keybinds
@@ -55,6 +59,8 @@ class AuthWindow:
     def setupcreateNewUser(this) -> None:
         this.instructions.configure(text="Enter New Credentials")
         this.enterBtn.configure(text="Create")
+        this.newUserLabel.configure(text="")
+        this.modifyLabel.configure(text="")
         this.onClick = this.createNewUser
     def createNewUser(this) -> None:
         username = this.usernameEntry.get()
@@ -76,3 +82,35 @@ class AuthWindow:
             this.root.destroy()
         else:
             this.instructions.configure(text="Invalid Credentials!")
+    
+
+    def setupModifyCredentials(this) -> None:
+        this.instructions.configure(text="Enter New and Old Credentials")
+        this.enterBtn.configure(text="Modify")
+        this.newUserLabel.configure(text="")
+        this.modifyLabel.configure(text="")
+        this.onClick = this.modifyCredentials
+
+        this.newUsernameEntry = ctk.CTkEntry(this.root, placeholder_text="New Username", width=200, height=40, font=font)
+        this.newUsernameEntry.grid(row=4, rowspan=1, pady=padding, column=0, columnspan=3)
+
+        this.newPasswordEntry = ctk.CTkEntry(this.root, placeholder_text="New Password", width=200, height=40, font=font)
+        this.newPasswordEntry.grid(row=5, rowspan=1, pady=padding, column=0, columnspan=3)
+
+        this.usernameEntry.configure(placeholder_text="Old Username")
+        this.passwordEntry.configure(placeholder_text="Old Password")
+    def modifyCredentials(this) -> None:
+        oldUsername = this.usernameEntry.get()
+        oldPassword = this.passwordEntry.get()
+        newUsername = this.newUsernameEntry.get()
+        newPassword = this.newPasswordEntry.get()
+        user = this.UserClass.authenticate(oldUsername, oldPassword, this.userManager)
+        if user is None:
+            this.instructions.configure(text="Invalid Credentials!")
+            return
+        success = user.changeCredentials(newUsername, newPassword, this.userManager)
+        if success is False:
+            this.instructions.configure(text="User Already Exists!")
+            return
+        this.authUser = user
+        this.root.destroy()

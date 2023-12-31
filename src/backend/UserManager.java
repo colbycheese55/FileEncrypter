@@ -56,7 +56,6 @@ public class UserManager{
         EncryptedUser newEncryptedUser = new EncryptedUser(Integer.toString(newHashedName), newEncryptedName, null);
         users.put(newHashedName, newEncryptedUser);
         updateUserFile(user);
-        System.out.println("Successfully changed user credentials\n");
     }
     public HashMap<String, FileProfile> getAvailableFiles(String username, String password) {
         String rawText = users.get(username.hashCode()).rawText;

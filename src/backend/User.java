@@ -21,16 +21,13 @@ public class User {
     public String getName() {return username;}
     public String getPassword() {return password;}
 
-    // public void changeCredentials(Scanner scan, UserManager userManager) {
-    //     String oldName = username;
-    //     System.out.println("Enter a new username (or nothing to leave unchanged)");
-    //     String in = scan.nextLine().replace(" ", "");
-    //     if (!in.equals(""))
-    //             username = in;
-    //     System.out.println("Enter a new password (or nothing to leave unchanged)");
-    //     in = scan.nextLine();
-    //     if (!in.equals(""))
-    //         password = in;
-    //     userManager.changeUserCredentials(oldName, this);
-    // }
+    public boolean changeCredentials(String newUsername, String newPassword, UserManager userManager) {
+        String oldName = username;
+        if (!oldName.equals(newUsername) && userManager.hasUsername(newUsername))
+            return false;
+        username = newUsername;
+        password = newPassword;
+        userManager.changeUserCredentials(oldName, this);
+        return true;
+    }
 }
