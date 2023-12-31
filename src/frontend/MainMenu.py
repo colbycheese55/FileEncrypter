@@ -5,6 +5,7 @@ class MainMenu:
     def __init__(this, vaultObj, FileHandler) -> None:
         this.root = ctk.CTk()
         this.root.title("File Encrypter Menu")
+        this.root.protocol("WM_DELETE_WINDOW", lambda: this.systemHandler("quit"))
         
         this.vault = vaultObj
         this.FileHandler = FileHandler
