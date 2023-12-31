@@ -1,102 +1,106 @@
 import customtkinter as ctk
 
 
-root = ctk.CTk()
-root.title("File Encrypter Menu")
-padding = 10
-vault = None
+class MainMenu:
+    def __init__(this, vaultObj, FileHandler) -> None:
+        this.root = ctk.CTk()
+        this.root.title("File Encrypter Menu")
+        
+        this.vault = vaultObj
+        this.FileHandler = FileHandler
+        this.rerun = False
+        padding = 10
 
-# Functions
-def systemHandler(command: str) -> None:
-    saveFlag = saveOptions.get()
-    match saveFlag:
-        case "Add and Save":
-            vault.saveFiles(True)
-        case "Save Existing Only":
-            vault.saveFiles(False)
-        case "Don't Save":
-            pass
-        case _:
-            raise Exception
-    deleteFlag = deleteOptions.get()
-    match deleteFlag:
-        case "Remove from this user":
-            vault.removeFiles(False)
-        case "Delete from all users":
-            vault.removeFiles(True)
-        case "Don't Remove":
-            pass
-        case _:
-            raise Exception
-    match command:
-        case "refresh":
-            updateFilesList()
-        case "logout":
-            root.destroy()
-        case "quit":
-            root.destroy()
-        case _:
-            raise Exception
+        
+        # Text box and Labels
+        labelFont = ("Franklin Gothic Heavy", 20)
+        textFont = ("Calibri", 16)
+
+        this.textBoxLabel = ctk.CTkLabel(this.root, text="Registered Files", font=labelFont)
+        this.textBoxLabel.grid(row=0, rowspan=1, column=0, columnspan=3, padx=padding, pady=padding)
+
+        this.optionsLabel = ctk.CTkLabel(this.root, text="Options", font=labelFont)
+        this.optionsLabel.grid(row=0, rowspan=1, column=4, columnspan=1, padx=padding, pady=padding)
+
+        this.infoLabel = ctk.CTkLabel(this.root, text="PLACEHOLDER", font=textFont)
+        this.infoLabel.grid(row=6, rowspan=1, column=0, columnspan=3, padx=padding, pady=0)
+
+
+        this.textBox = ctk.CTkTextbox(this.root, width=300, height=300, font=textFont)
+        this.textBox.grid(row=1, rowspan=5, column=0, columnspan=3, padx=padding, pady=padding)
+        this.textBox.configure(state=ctk.DISABLED)
+
+
+        # Buttons
+        btnParams = {"font": labelFont, "width": 100, "height": 30}
+
+        this.refreshBtn = ctk.CTkButton(this.root, text="Refresh", **btnParams, command=lambda: this.systemHandler("refresh"))
+        this.refreshBtn.grid(row=1, rowspan=1, column=4, columnspan=1, padx=padding)
+
+        this.logoutBtn = ctk.CTkButton(this.root, text="Logout", **btnParams, command=lambda: this.systemHandler("logout"))
+        this.logoutBtn.grid(row=2, rowspan=1, column=4, columnspan=1, padx=padding)
+
+        this.quitBtn = ctk.CTkButton(this.root, text="Quit", **btnParams, command=lambda: this.systemHandler("quit"))
+        this.quitBtn.grid(row=3, rowspan=1, column=4, columnspan=1, padx=padding)
+
+        this.shareBtn = ctk.CTkButton(this.root, text="Share", **btnParams)
+        this.shareBtn.grid(row=7, rowspan=1, column=0, columnspan=3, pady=padding)
+
+        this.saveOptions = ctk.CTkComboBox(this.root, values=("Add and Save", "Save Existing Only", "Don't Save"), font=textFont, width=170)
+        this.saveOptions.grid(row=4, rowspan=1, column=4, columnspan=1, padx=padding)
+
+        this.deleteOptions = ctk.CTkComboBox(this.root, values=("Remove from this user", "Delete from all users", "Don't Remove"), font=textFont, width=170)
+        this.deleteOptions.grid(row=5, rowspan=1, column=4, columnspan=1, padx=padding)
+
+
+    def systemHandler(this, command: str) -> None:
+        saveFlag = this.saveOptions.get()
+        match saveFlag:
+            case "Add and Save":
+                this.vault.saveFiles(True)
+            case "Save Existing Only":
+                this.vault.saveFiles(False)
+            case "Don't Save":
+                pass
+            case _:
+                raise Exception
+        deleteFlag = this.deleteOptions.get()
+        match deleteFlag:
+            case "Remove from this user":
+                this.vault.removeFiles(False)
+            case "Delete from all users":
+                this.vault.removeFiles(True)
+            case "Don't Remove":
+                pass
+            case _:
+                raise Exception
+        match command:
+            case "refresh":
+                this.updateFilesList()
+            case "logout":
+                this.rerun = True
+                this.root.destroy()
+            case "quit":
+                this.rerun = False
+                this.root.destroy()
+            case _:
+                raise Exception
         
 
-def updateFilesList() -> None:
-    fileListing = vault.listFiles()
-    info = vault.getVaultInfo()
+    def updateFilesList(this) -> None:
+        fileListing = this.vault.listFiles()
+        info = this.vault.getVaultInfo()
 
-    textBox.configure(state=ctk.NORMAL)
-    textBox.delete("1.0", ctk.END)
-    textBox.insert(ctk.END, fileListing)
-    textBox.configure(state=ctk.DISABLED)
-    infoLabel.configure(text=info)
-#root.after(1, updateFilesList)
+        this.textBox.configure(state=ctk.NORMAL)
+        this.textBox.delete("1.0", ctk.END)
+        this.textBox.insert(ctk.END, fileListing)
+        this.textBox.configure(state=ctk.DISABLED)
+        this.infoLabel.configure(text=info)
     
 
+    def openMenu(this) -> bool:
+        this.updateFilesList()
+        this.root.mainloop()
 
-# Text box and Labels
-labelFont = ("Franklin Gothic Heavy", 20)
-textFont = ("Calibri", 16)
-
-textBoxLabel = ctk.CTkLabel(root, text="Registered Files", font=labelFont)
-textBoxLabel.grid(row=0, rowspan=1, column=0, columnspan=3, padx=padding, pady=padding)
-
-optionsLabel = ctk.CTkLabel(root, text="Options", font=labelFont)
-optionsLabel.grid(row=0, rowspan=1, column=4, columnspan=1, padx=padding, pady=padding)
-
-infoLabel = ctk.CTkLabel(root, text="PLACEHOLDER", font=textFont)
-infoLabel.grid(row=6, rowspan=1, column=0, columnspan=3, padx=padding, pady=0)
-
-
-textBox = ctk.CTkTextbox(root, width=300, height=300, font=textFont)
-textBox.grid(row=1, rowspan=5, column=0, columnspan=3, padx=padding, pady=padding)
-textBox.configure(state=ctk.DISABLED)
-
-
-# Buttons
-btnParams = {"font": labelFont, "width": 100, "height": 30}
-
-refreshBtn = ctk.CTkButton(root, text="Refresh", **btnParams, command=lambda: systemHandler("refresh"))
-refreshBtn.grid(row=1, rowspan=1, column=4, columnspan=1, padx=padding)
-
-logoutBtn = ctk.CTkButton(root, text="Logout", **btnParams, command=lambda: systemHandler("logout"))
-logoutBtn.grid(row=2, rowspan=1, column=4, columnspan=1, padx=padding)
-
-quitBtn = ctk.CTkButton(root, text="Quit", **btnParams, command=lambda: systemHandler("quit"))
-quitBtn.grid(row=3, rowspan=1, column=4, columnspan=1, padx=padding)
-
-shareBtn = ctk.CTkButton(root, text="Share", **btnParams)
-shareBtn.grid(row=7, rowspan=1, column=0, columnspan=3, pady=padding)
-
-saveOptions = ctk.CTkComboBox(root, values=("Add and Save", "Save Existing Only", "Don't Save"), font=textFont, width=170)
-saveOptions.grid(row=4, rowspan=1, column=4, columnspan=1, padx=padding)
-
-deleteOptions = ctk.CTkComboBox(root, values=("Remove from this user", "Delete from all users", "Don't Remove"), font=textFont, width=170)
-deleteOptions.grid(row=5, rowspan=1, column=4, columnspan=1, padx=padding)
-
-
-
-def openMenu(vaultObj, FileHandler):
-    global vault
-    vault = vaultObj
-    root.mainloop()
-
-    FileHandler.closeVault()
+        this.FileHandler.closeVault()
+        return this.rerun

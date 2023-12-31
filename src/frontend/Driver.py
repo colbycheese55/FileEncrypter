@@ -1,6 +1,6 @@
 import jpype as java
 import os
-from MainMenu import openMenu
+from MainMenu import MainMenu
 
 
 TESTING = True
@@ -26,4 +26,8 @@ vault = Vault(userManager, user)
 
 FileHandler = java.JClass("src.backend.FileHandler")
 
-openMenu(vault, FileHandler)
+rerun = True
+while rerun:
+    menu = MainMenu(vault, FileHandler)
+    rerun = menu.openMenu()
+print("DONE")
