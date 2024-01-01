@@ -71,6 +71,7 @@ class AuthWindow:
             this.root.destroy()
         else:
             this.instructions.configure(text="User Already Exists!")
+            this.colorChange(this.usernameEntry)
 
 
     def enterCredentials(this) -> None:
@@ -82,6 +83,7 @@ class AuthWindow:
             this.root.destroy()
         else:
             this.instructions.configure(text="Invalid Credentials!")
+            this.colorChange(this.usernameEntry, this.passwordEntry)
     
 
     def setupModifyCredentials(this) -> None:
@@ -107,10 +109,19 @@ class AuthWindow:
         user = this.UserClass.authenticate(oldUsername, oldPassword, this.userManager)
         if user is None:
             this.instructions.configure(text="Invalid Credentials!")
+            this.colorChange(this.usernameEntry, this.passwordEntry)
             return
         success = user.changeCredentials(newUsername, newPassword, this.userManager)
         if success is False:
             this.instructions.configure(text="User Already Exists!")
+            this.colorChange(this.newUsernameEntry)
             return
         this.authUser = user
         this.root.destroy()
+
+
+    def colorChange(this, *elements) -> None:
+        for element in elements:
+            current = element.cget("fg_color")
+            element.configure(fg_color="#CD5250")
+            element.after(4000, lambda e=element, c=current: e.configure(fg_color=c))
