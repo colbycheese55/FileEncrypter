@@ -1,4 +1,5 @@
 import customtkinter as ctk
+from ShareMenu import runShareReceivedMenu, runShareSendMenu
 
 
 def runMainMenu(vaultObj, FileHandler) -> bool:
@@ -40,19 +41,23 @@ class MainMenu:
 
 
         # Buttons
-        btnParams = {"font": labelFont, "width": 100, "height": 30}
+        smallBtnParams = {"font": labelFont, "width": 100, "height": 30}
+        largeBtnParams = {"font": labelFont, "width": 150, "height": 30}
 
-        this.refreshBtn = ctk.CTkButton(this.root, text="Refresh", **btnParams, command=lambda: this.systemHandler("refresh"))
+        this.refreshBtn = ctk.CTkButton(this.root, text="Refresh", **smallBtnParams, command=lambda: this.systemHandler("refresh"))
         this.refreshBtn.grid(row=1, rowspan=1, column=4, columnspan=1, padx=padding)
 
-        this.logoutBtn = ctk.CTkButton(this.root, text="Logout", **btnParams, command=lambda: this.systemHandler("logout"))
+        this.logoutBtn = ctk.CTkButton(this.root, text="Logout", **smallBtnParams, command=lambda: this.systemHandler("logout"))
         this.logoutBtn.grid(row=2, rowspan=1, column=4, columnspan=1, padx=padding)
 
-        this.quitBtn = ctk.CTkButton(this.root, text="Quit", **btnParams, command=lambda: this.systemHandler("quit"))
+        this.quitBtn = ctk.CTkButton(this.root, text="Quit", **smallBtnParams, command=lambda: this.systemHandler("quit"))
         this.quitBtn.grid(row=3, rowspan=1, column=4, columnspan=1, padx=padding)
 
-        this.shareBtn = ctk.CTkButton(this.root, text="Share", **btnParams)
-        this.shareBtn.grid(row=7, rowspan=1, column=0, columnspan=3, pady=padding)
+        this.shareSendBtn = ctk.CTkButton(this.root, text="Send Files", **largeBtnParams)
+        this.shareSendBtn.grid(row=7, rowspan=1, column=0, columnspan=2, pady=padding)
+
+        this.shareReceiveBtn = ctk.CTkButton(this.root, text="Receive Files", **largeBtnParams, command=lambda: runShareReceivedMenu(this.vault))
+        this.shareReceiveBtn.grid(row=7, rowspan=1, column=2, columnspan=2)
 
         this.saveOptions = ctk.CTkComboBox(this.root, values=("Add and Save", "Save Existing Only", "Don't Save"), font=textFont, width=170)
         this.saveOptions.grid(row=4, rowspan=1, column=4, columnspan=1, padx=padding)

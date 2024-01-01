@@ -11,8 +11,8 @@ public class Vault {
         // TODO fix
         //Sharing.checkEntries(user, userManager);
         String[] invalidFiles = FileHandler.openVault(user);
-        if (invalidFiles.length > 0)
-            removeInvalidFiles(invalidFiles);
+        // if (invalidFiles.length > 0)
+        //     removeInvalidFiles(invalidFiles);
         userManager.updateUserFile(user);
     }
     
@@ -23,13 +23,6 @@ public class Vault {
         list = list.replace(", ", "\n").replace("[", "").replace("]", "");
         return list;
     }
-    // private void shareWithAnotherUser(String[] entries) {
-    //     if (entries.length != 2) {
-    //         System.out.println("NO SHARING FLAG GIVEN");
-    //         return;
-    //     }
-    //     Sharing.share(entries[1], user, scan, userManager);
-    // }
     public void saveFiles(boolean addNewFiles) {
         ProgressBar progressBar = new ProgressBar("Saving Files: ", ProgressBar.DEFAULT_LENGTH);
         String[] fileNames = FileHandler.getFilenamesAtPath(FileHandler.DECRYPTED_VAULT_EXT);
@@ -76,11 +69,35 @@ public class Vault {
     }
 
     // HELPER METHOD
-    private void removeInvalidFiles(String[] list) {
-        for (String upNext: list)
-            user.fileProfiles.remove(upNext);
-        userManager.updateUserFile(user);
-        System.out.println("MISSING FILES: the following files are missing from the encrypted vault and have been removed from the user's availability list");
-        System.out.println(Arrays.toString(list));
+    // private void removeInvalidFiles(String[] list) {
+    //     for (String upNext: list)
+    //         user.fileProfiles.remove(upNext);
+    //     userManager.updateUserFile(user);
+    //     System.out.println("MISSING FILES: the following files are missing from the encrypted vault and have been removed from the user's availability list");
+    //     System.out.println(Arrays.toString(list));
+    // }
+
+    public String trySharedFiles(String password) {
+        ArrayList<String> sharedFiles = userManager.shareLog.getEntriesForUser(user.getName());
+        String out = "";
+        for (int i = 0; i < sharedFiles.size(); i++) {
+            String decFileProfile = Encryption.decrypt(sharedFiles.get(i), password);
+            if (decFileProfile != null) {
+                FileProfile fileProfile = new FileProfile(decFileProfile);
+                user.fileProfiles.put(fileProfile.getName(), fileProfile);
+                sharedFiles.remove(i);
+                i--;
+                out += fileProfile.getName() + "\n";
+        }}
+        userManager.shareLog.removeOldEntries(sharedFiles, user.getName());
+        return out;
     }
+    public int numSharedFiles() {
+        ArrayList<String> sharedFiles = userManager.shareLog.getEntriesForUser(user.getName());
+        return sharedFiles.size();
+    }
+
+
+    public User getUser() {return user;}
+    public UserManager getUserManager() {return userManager;}
 }
