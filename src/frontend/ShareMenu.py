@@ -1,8 +1,6 @@
 import customtkinter as ctk
+from Standards import padding, textFont, labelFont, entryFont, linkFont, largeBtnParams, smallBtnParams
 
-
-padding = 10
-textFont = ("Calibri", 18)
 
 def runShareReceivedMenu(vault) -> None:
     menu = ShareReceivedMenu(vault)
@@ -22,10 +20,10 @@ class ShareReceivedMenu:
         this.textBox.grid(row=1, rowspan=5, column=0, columnspan=3, padx=padding, pady=padding)
         this.textBox.configure(state=ctk.DISABLED)
 
-        this.otpEntry = ctk.CTkEntry(this.root, font=textFont, placeholder_text="Next OTP")
+        this.otpEntry = ctk.CTkEntry(this.root, font=entryFont, placeholder_text="Next OTP")
         this.otpEntry.grid(row=1, rowspan=1, column=4, columnspan=1)
 
-        this.tryBtn = ctk.CTkButton(this.root, text="Try OTP", command=this.tryOTP)
+        this.tryBtn = ctk.CTkButton(this.root, text="Try OTP", command=this.tryOTP, **smallBtnParams)
         this.tryBtn.grid(row=2, rowspan=1, column=4, columnspan=1)
 
         this.info = ctk.CTkLabel(this.root, text="", font=textFont)

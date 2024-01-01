@@ -1,4 +1,5 @@
 import customtkinter as ctk
+from Standards import padding, textFont, labelFont, entryFont, linkFont, largeBtnParams, smallBtnParams
 from ShareMenu import runShareReceivedMenu, runShareSendMenu
 
 
@@ -18,13 +19,9 @@ class MainMenu:
         
         this.vault = vaultObj
         this.rerun = False
-        padding = 10
 
         
         # Text box and Labels
-        labelFont = ("Franklin Gothic Heavy", 20)
-        textFont = ("Calibri", 16)
-
         this.textBoxLabel = ctk.CTkLabel(this.root, text="Registered Files", font=labelFont)
         this.textBoxLabel.grid(row=0, rowspan=1, column=0, columnspan=3, padx=padding, pady=padding)
 
@@ -41,9 +38,6 @@ class MainMenu:
 
 
         # Buttons
-        smallBtnParams = {"font": labelFont, "width": 100, "height": 30}
-        largeBtnParams = {"font": labelFont, "width": 150, "height": 30}
-
         this.refreshBtn = ctk.CTkButton(this.root, text="Refresh", **smallBtnParams, command=lambda: this.systemHandler("refresh"))
         this.refreshBtn.grid(row=1, rowspan=1, column=4, columnspan=1, padx=padding)
 

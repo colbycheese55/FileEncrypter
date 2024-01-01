@@ -1,8 +1,6 @@
 import customtkinter as ctk
+from Standards import padding, textFont, labelFont, entryFont, linkFont, largeBtnParams, smallBtnParams
 
-padding = 10
-font = ("Calibri", 18)
-linkFont = ("Calibri", 18, "italic")
 
 def authenticate(userManager, UserClass) -> any:
         authWindow = AuthWindow(userManager, UserClass)
@@ -29,16 +27,16 @@ class AuthWindow:
 
 
         # Elements 
-        this.instructions = ctk.CTkLabel(this.root, text="Enter Credentials", font=font)
+        this.instructions = ctk.CTkLabel(this.root, text="Enter Credentials", font=entryFont)
         this.instructions.grid(row=0, rowspan=1, pady=padding, column=0, columnspan=3)
 
-        this.usernameEntry = ctk.CTkEntry(this.root, placeholder_text="Username", width=200, height=40, font=font)
+        this.usernameEntry = ctk.CTkEntry(this.root, placeholder_text="Username", width=200, height=40, font=entryFont)
         this.usernameEntry.grid(row=2, rowspan=1, pady=padding, column=0, columnspan=3)
 
-        this.passwordEntry = ctk.CTkEntry(this.root, placeholder_text="Password", width=200, height=40, font=font)
+        this.passwordEntry = ctk.CTkEntry(this.root, placeholder_text="Password", width=200, height=40, font=entryFont)
         this.passwordEntry.grid(row=3, rowspan=1, pady=padding, column=0, columnspan=3)
 
-        this.enterBtn = ctk.CTkButton(this.root, text="Login", font=("Franklin Gothic Heavy", 20), command=this.onClick, width=100, height=30)
+        this.enterBtn = ctk.CTkButton(this.root, text="Login", command=this.onClick, **smallBtnParams)
         this.enterBtn.grid(row=6, rowspan=1, column=0, columnspan=3)
 
         emptyRow = ctk.CTkLabel(this.root, text="", height=140)
@@ -93,10 +91,10 @@ class AuthWindow:
         this.modifyLabel.configure(text="")
         this.onClick = this.modifyCredentials
 
-        this.newUsernameEntry = ctk.CTkEntry(this.root, placeholder_text="New Username", width=200, height=40, font=font)
+        this.newUsernameEntry = ctk.CTkEntry(this.root, placeholder_text="New Username", width=200, height=40, font=entryFont)
         this.newUsernameEntry.grid(row=4, rowspan=1, pady=padding, column=0, columnspan=3)
 
-        this.newPasswordEntry = ctk.CTkEntry(this.root, placeholder_text="New Password", width=200, height=40, font=font)
+        this.newPasswordEntry = ctk.CTkEntry(this.root, placeholder_text="New Password", width=200, height=40, font=entryFont)
         this.newPasswordEntry.grid(row=5, rowspan=1, pady=padding, column=0, columnspan=3)
 
         this.usernameEntry.configure(placeholder_text="Old Username")
