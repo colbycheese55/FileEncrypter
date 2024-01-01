@@ -1,4 +1,5 @@
 import customtkinter as ctk
+from tkinter import messagebox as mb
 from Standards import padding, textFont, labelFont, entryFont, linkFont, largeBtnParams, smallBtnParams
 from ShareMenu import runShareReceivedMenu, runShareSendMenu
 
@@ -6,6 +7,7 @@ from ShareMenu import runShareReceivedMenu, runShareSendMenu
 def runMainMenu(vaultObj, FileHandler) -> bool:
         menu = MainMenu(vaultObj)
         menu.updateFilesList()
+        menu.root.after(1000, menu.missingFilesCheck)
         menu.root.mainloop()
         FileHandler.closeVault()
         return menu.rerun
@@ -103,3 +105,11 @@ class MainMenu:
         this.textBox.insert(ctk.END, fileListing)
         this.textBox.configure(state=ctk.DISABLED)
         this.infoLabel.configure(text=info)
+
+
+    def missingFilesCheck(this) -> None:
+        missingFiles = this.vault.getMissingFiles()
+        if missingFiles is None:
+            return
+        text = f"The following files are missing, and are at risk of being removed: \n{missingFiles}"
+        mb.showwarning("Missing Files", text)

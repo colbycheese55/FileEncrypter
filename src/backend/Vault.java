@@ -4,15 +4,12 @@ import java.util.*;
 public class Vault {
     private User user;
     private UserManager userManager;
+    private String[] missingFiles;
 
     public Vault(UserManager userManager, User user) {
         this.userManager = userManager;
         this.user = user;  
-        // TODO fix
-        //Sharing.checkEntries(user, userManager);
-        String[] invalidFiles = FileHandler.openVault(user);
-        // if (invalidFiles.length > 0)
-        //     removeInvalidFiles(invalidFiles);
+        this.missingFiles = FileHandler.openVault(user);
         userManager.updateUserFile(user);
     }
     
@@ -67,16 +64,6 @@ public class Vault {
     public String getVaultInfo() {
         return user.getName() + " is signed in, with " + user.fileProfiles.size() + " file(s) available";
     }
-
-    // HELPER METHOD
-    // private void removeInvalidFiles(String[] list) {
-    //     for (String upNext: list)
-    //         user.fileProfiles.remove(upNext);
-    //     userManager.updateUserFile(user);
-    //     System.out.println("MISSING FILES: the following files are missing from the encrypted vault and have been removed from the user's availability list");
-    //     System.out.println(Arrays.toString(list));
-    // }
-
     public String trySharedFiles(String password) {
         ArrayList<String> sharedFiles = userManager.shareLog.getEntriesForUser(user.getName());
         String out = "";
@@ -100,4 +87,12 @@ public class Vault {
 
     public User getUser() {return user;}
     public UserManager getUserManager() {return userManager;}
+    public String getMissingFiles() {
+        String out = "";
+        for (String file: this.missingFiles)
+            out += file + "\n";
+        if (out.equals(""))
+            return null;
+        return out;
+    }
 }
