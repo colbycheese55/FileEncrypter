@@ -36,7 +36,7 @@ class AuthWindow:
         this.passwordEntry = ctk.CTkEntry(this.root, placeholder_text="Password", width=200, height=40, font=entryFont)
         this.passwordEntry.grid(row=3, rowspan=1, pady=padding, column=0, columnspan=3)
 
-        this.enterBtn = ctk.CTkButton(this.root, text="Login", command=this.onClick, **smallBtnParams)
+        this.enterBtn = ctk.CTkButton(this.root, text="Login", command=lambda: this.onClick(), **smallBtnParams)
         this.enterBtn.grid(row=6, rowspan=1, column=0, columnspan=3)
 
         emptyRow = ctk.CTkLabel(this.root, text="", height=140)
