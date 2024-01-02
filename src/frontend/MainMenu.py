@@ -4,8 +4,8 @@ from Standards import padding, textFont, labelFont, entryFont, linkFont, largeBt
 from ShareMenu import runShareReceivedMenu, runShareSendMenu
 
 
-def runMainMenu(vaultObj, FileHandler) -> bool:
-        menu = MainMenu(vaultObj)
+def runMainMenu(vaultObj, FileHandler, path, UserClass) -> bool:
+        menu = MainMenu(vaultObj, path, UserClass)
         menu.updateFilesList()
         menu.root.after(1000, menu.missingFilesCheck)
         menu.root.mainloop()
@@ -14,12 +14,14 @@ def runMainMenu(vaultObj, FileHandler) -> bool:
 
 
 class MainMenu:
-    def __init__(this, vaultObj) -> None:
+    def __init__(this, vaultObj, path, UserClass) -> None:
         this.root = ctk.CTk()
         this.root.title("File Encrypter Menu")
         this.root.protocol("WM_DELETE_WINDOW", lambda: this.systemHandler("quit"))
         
         this.vault = vaultObj
+        this.path = path
+        this.UserClass = UserClass
         this.rerun = False
 
         
@@ -49,7 +51,7 @@ class MainMenu:
         this.quitBtn = ctk.CTkButton(this.root, text="Quit", **smallBtnParams, command=lambda: this.systemHandler("quit"))
         this.quitBtn.grid(row=3, rowspan=1, column=4, columnspan=1, padx=padding)
 
-        this.shareSendBtn = ctk.CTkButton(this.root, text="Send Files", **largeBtnParams)
+        this.shareSendBtn = ctk.CTkButton(this.root, text="Send Files", **largeBtnParams, command=lambda: runShareSendMenu(this.vault, this.path, this.UserClass))
         this.shareSendBtn.grid(row=7, rowspan=1, column=0, columnspan=2, pady=padding)
 
         this.shareReceiveBtn = ctk.CTkButton(this.root, text="Receive Files", **largeBtnParams, command=lambda: runShareReceivedMenu(this.vault))

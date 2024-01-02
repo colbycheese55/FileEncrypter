@@ -84,6 +84,23 @@ public class Vault {
         return sharedFiles.size();
     }
 
+    public void shareNow(User otherUser, String[] filesToShare) {
+        for (String fileName: filesToShare) {
+            FileProfile fileProfile = user.fileProfiles.get(fileName);
+            otherUser.fileProfiles.put(fileName, fileProfile);
+            userManager.fileCounts.changeFileCount(fileName, fileProfile.getIV(), "+1");;
+        }
+        userManager.updateUserFile(otherUser);
+    }
+    
+    public void shareEncrypted(String receivingUserName, String[] filesToShare, String password) {
+        for (String fileName: filesToShare) {
+            FileProfile fileProfile = user.fileProfiles.get(fileName);
+            userManager.shareLog.addEntry(fileProfile, receivingUserName, password);
+            userManager.fileCounts.changeFileCount(fileName, fileProfile.getIV(), "+1");
+        }
+    }
+
 
     public User getUser() {return user;}
     public UserManager getUserManager() {return userManager;}
