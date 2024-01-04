@@ -15,9 +15,11 @@ public class FileHandler {
     private static long[] vaultOpeningTime = new long[2]; // {when the vault started the open, when it finished opening}
 
     // FILE IN / OUT (with encryption as needed)
-    public static void encryptFile(String fileName, String password, String IV) {
+    public static void encryptFile(String fileName, String absPath, String password, String IV) {
+        if (absPath == null)
+            absPath = PROGRAM_PATH + DECRYPTED_VAULT_EXT + fileName;
         File encryptedFile = new File(PROGRAM_PATH + ENCRYPTED_VAULT_EXT + Encryption.hashName(fileName, IV));
-        File decryptedFile = new File(PROGRAM_PATH + DECRYPTED_VAULT_EXT + fileName);
+        File decryptedFile = new File(absPath);
         Cipher cipher = Encryption.getCipher(Cipher.ENCRYPT_MODE, password, IV);
 
         try (

@@ -1,4 +1,5 @@
 package src.backend;
+import java.io.File;
 import java.util.*;
 
 public class Vault {
@@ -37,7 +38,7 @@ public class Vault {
                 continue;
             if (addNewFiles || user.fileProfiles.containsKey(nextFileName)) {
                 FileProfile fileProfile = user.fileProfiles.get(nextFileName);
-                FileHandler.encryptFile(fileProfile.getName(), fileProfile.getKey(), fileProfile.getIV());
+                FileHandler.encryptFile(fileProfile.getName(), null, fileProfile.getKey(), fileProfile.getIV());
             }
             progressBar.update((double) i / fileNames.length);
         }
@@ -86,27 +87,45 @@ public class Vault {
         return sharedFiles.size();
     }
 
-    public void shareNow(User otherUser, String[] filesToShare) {
-        for (String fileName: filesToShare) {
-            FileProfile fileProfile = user.fileProfiles.get(fileName);
+    public void shareNow(User otherUser, String[] filePaths) {
+        for (String filePath: filePaths) {
+            String fileName = (new File(filePath)).getName();
+            FileProfile fileProfile = null;
+            if (user.fileProfiles.containsKey(fileName))
+                fileProfile = user.fileProfiles.get(fileName);
+            else
+                fileProfile = handleUntrackedFile(filePath);
             otherUser.fileProfiles.put(fileName, fileProfile);
             userManager.fileCounts.changeFileCount(fileName, fileProfile.getIV(), "+1");;
         }
         userManager.updateUserFile(otherUser);
     }
     
-    public boolean shareEncrypted(String receivingUserName, String[] filesToShare, String password) {
+    public boolean shareEncrypted(String receivingUserName, String password, String[] filePaths) {
         if (!userManager.hasUsername(receivingUserName))
             return false;
-        for (String fileName: filesToShare) {
-            FileProfile fileProfile = user.fileProfiles.get(fileName);
+        for (String filePath: filePaths) {
+            String fileName = (new File(filePath)).getName();
+            FileProfile fileProfile = null;
+            if (user.fileProfiles.containsKey(fileName))
+                fileProfile = user.fileProfiles.get(fileName);
+            else
+                fileProfile = handleUntrackedFile(filePath);
             userManager.shareLog.addEntry(fileProfile, receivingUserName, password);
-            userManager.fileCounts.changeFileCount(fileName, fileProfile.getIV(), "+1");
+            userManager.fileCounts.changeFileCount(fileName, fileProfile.getIV(), "+1");                
         }
         userManager.updateUserFile(user);
         return true;
     }
 
+    private FileProfile handleUntrackedFile(String absPath) {
+        String fileName = (new File(absPath)).getName();
+        String key = Encryption.generateSecureToken();
+        String IV = Encryption.generateSecureToken();
+        FileProfile fileProfile = new FileProfile(fileName, key, IV);
+        FileHandler.encryptFile(fileName, absPath, key, IV);
+        return fileProfile;
+    }
 
     public User getUser() {return user;}
     public UserManager getUserManager() {return userManager;}

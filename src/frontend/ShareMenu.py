@@ -58,7 +58,7 @@ class ShareSendMenu:
         this.vault = vault
         this.path = path
         this.UserClass = UserClass
-        this.files = list()
+        this.files = set()
         this.root = ctk.CTkToplevel()
         this.root.attributes("-topmost", True)
         this.root.title("Send Files")
@@ -93,14 +93,12 @@ class ShareSendMenu:
 
 
     def chooseFiles(this) -> None: #TODO, fix allows repeats
-        files = fd.askopenfilenames(title="Choose files to share", initialdir=f"{this.path}/unlocked-storage")
-        text = ""
-        for file in files:
-            name = os.path.basename(file)
-            this.files.append(name)
-            text += name + "\n"
+        newFiles = fd.askopenfilenames(title="Choose files to share", initialdir=f"{this.path}/unlocked-storage")
+        this.files.update(newFiles)
+        text = "\n".join([os.path.basename(fileName) for fileName in this.files])
 
         this.textBox.configure(state=ctk.NORMAL)
+        this.textBox.delete("1.0", ctk.END)
         this.textBox.insert(ctk.END, text)
         this.textBox.configure(state=ctk.DISABLED)
 
@@ -117,17 +115,17 @@ class ShareSendMenu:
                 otherUser = authenticate(this.vault.getUserManager(), this.UserClass)
                 if otherUser is None:
                     return 
-                this.vault.shareNow(otherUser, this.files)
+                this.vault.shareNow(otherUser, list(this.files))
             case "Share by username":
                 receivingUser = this.userEntryBox.get()
-                result = this.vault.shareEncrypted(receivingUser, this.files, receivingUser)
+                result = this.vault.shareEncrypted(receivingUser, receivingUser, list(this.files))
                 if result is False:
                     mb.showerror("User Doesn't Exist", f"The user \"{receivingUser}\" does not exist!")
                     return
             case "Share by OTP":
                 password = this.otpEntry.get()
                 receivingUser = this.userEntryBox.get()
-                result = this.vault.shareEncrypted(receivingUser, this.files, password)
+                result = this.vault.shareEncrypted(receivingUser, password, list(this.files))
                 if result is False:
                     mb.showerror("User Doesn't Exist", f"The user \"{receivingUser}\" does not exist!")
                     return
