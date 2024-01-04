@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from tkinter import filedialog as fd
+from tkinter import filedialog as fd, messagebox as mb
 import os
 from Standards import padding, textFont, labelFont, entryFont, linkFont, largeBtnParams, smallBtnParams
 from Authentication import authenticate
@@ -120,11 +120,17 @@ class ShareSendMenu:
                 this.vault.shareNow(otherUser, this.files)
             case "Share by username":
                 receivingUser = this.userEntryBox.get()
-                this.vault.shareEncrypted(receivingUser, this.files, receivingUser)
+                result = this.vault.shareEncrypted(receivingUser, this.files, receivingUser)
+                if result is False:
+                    mb.showerror("User Doesn't Exist", f"The user \"{receivingUser}\" does not exist!")
+                    return
             case "Share by OTP":
                 password = this.otpEntry.get()
                 receivingUser = this.userEntryBox.get()
-                this.vault.shareEncrypted(receivingUser, this.files, password)
+                result = this.vault.shareEncrypted(receivingUser, this.files, password)
+                if result is False:
+                    mb.showerror("User Doesn't Exist", f"The user \"{receivingUser}\" does not exist!")
+                    return
         this.clear()
 
     def shareMethodSwitch(this, value) -> None:
