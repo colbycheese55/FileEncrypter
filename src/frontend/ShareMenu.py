@@ -36,13 +36,13 @@ class ShareReceivedMenu:
         this.root.bind("<Return>", lambda _: this.tryOTP(None))
 
 
-    def tryOTP(this, password=None) -> None:
-        password = this.otpEntry.get() if password is None else password
-        text = this.vault.trySharedFiles(password)
-        text = f"Files unlocked by \"{password}\": \n{text}"
+    def tryOTP(this, username=None) -> None:
+        password = username if username else this.otpEntry.get()
+        text = "Files unlocked by username:" if username else f"Files unlocked by \"{password}\":"
+        content = this.vault.trySharedFiles(password)
         this.textBox.configure(state=ctk.NORMAL)
         this.textBox.delete("1.0", ctk.END)
-        this.textBox.insert(ctk.END, text)
+        this.textBox.insert(ctk.END, f"{text}\n{content}")
         this.textBox.configure(state=ctk.DISABLED)
         filesLeftText = f"{this.vault.numSharedFiles()} File(s) still locked"
         this.info.configure(text=filesLeftText)
