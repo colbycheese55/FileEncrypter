@@ -22,7 +22,7 @@ userManager = UserManager()
 
 rerun = True
 while rerun:
-    user = authenticate(userManager, User)
+    user = authenticate(userManager, User, True)
     if user is None:
         break
     vault = Vault(userManager, user)

@@ -2,19 +2,22 @@ import customtkinter as ctk
 from Standards import padding, textFont, labelFont, entryFont, linkFont, largeBtnParams, smallBtnParams
 
 
-def authenticate(userManager, UserClass) -> any:
-        authWindow = AuthWindow(userManager, UserClass)
-        authWindow.root.mainloop()
+def authenticate(userManager, UserClass, mainProcess=False) -> any:
+        authWindow = AuthWindow(userManager, UserClass, mainProcess)
+        if mainProcess:
+            authWindow.root.mainloop()
+        else:
+            authWindow.root.wait_window()
         return authWindow.authUser
 
 class AuthWindow:
-    def __init__(this, userManager, UserClass) -> None:
+    def __init__(this, userManager, UserClass, mainProcess: bool) -> None:
         this.authUser = None
         this.userManager = userManager
         this.UserClass = UserClass
         this.onClick = this.enterCredentials
 
-        this.root = ctk.CTk()
+        this.root = ctk.CTk() if mainProcess else ctk.CTkToplevel()
         this.root.title("Authentication")
         this.root.geometry("250x400")
         this.root.resizable(False, False)
