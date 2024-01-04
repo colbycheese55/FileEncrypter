@@ -8,13 +8,14 @@ from Authentication import authenticate
 def runShareReceivedMenu(vault) -> None:
     menu = ShareReceivedMenu(vault)
     menu.tryOTP(vault.getUser().getName())
-    menu.root.mainloop()
+    menu.root.wait_window()
 
 
 class ShareReceivedMenu:
     def __init__(this, vault) -> None:
         this.vault = vault
-        this.root = ctk.CTk()
+        this.root = ctk.CTkToplevel()
+        this.root.attributes("-topmost", True)
         this.root.title("Received Files")
         this.root.geometry("480x320")
         this.root.resizable(False, False)
@@ -58,7 +59,8 @@ class ShareSendMenu:
         this.path = path
         this.UserClass = UserClass
         this.files = list()
-        this.root = ctk.CTk()
+        this.root = ctk.CTkToplevel()
+        this.root.attributes("-topmost", True)
         this.root.title("Send Files")
         this.root.geometry("500x350")
         this.root.resizable(False, False)

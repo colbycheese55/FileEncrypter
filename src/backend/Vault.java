@@ -72,11 +72,13 @@ public class Vault {
             if (decFileProfile != null) {
                 FileProfile fileProfile = new FileProfile(decFileProfile);
                 user.fileProfiles.put(fileProfile.getName(), fileProfile);
+                FileHandler.decryptFile(fileProfile.getName(), fileProfile.getKey(), fileProfile.getIV());
                 sharedFiles.remove(i);
                 i--;
                 out += fileProfile.getName() + "\n";
         }}
         userManager.shareLog.removeOldEntries(sharedFiles, user.getName());
+        userManager.updateUserFile(user);
         return out;
     }
     public int numSharedFiles() {
@@ -99,6 +101,7 @@ public class Vault {
             userManager.shareLog.addEntry(fileProfile, receivingUserName, password);
             userManager.fileCounts.changeFileCount(fileName, fileProfile.getIV(), "+1");
         }
+        userManager.updateUserFile(user);
     }
 
 

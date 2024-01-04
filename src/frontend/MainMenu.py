@@ -6,7 +6,7 @@ from ShareMenu import runShareReceivedMenu, runShareSendMenu
 
 def runMainMenu(vaultObj, FileHandler, path, UserClass) -> bool:
         menu = MainMenu(vaultObj, path, UserClass)
-        menu.updateFilesList()
+        menu.shareReceiveHandler(checkOnly=True)
         menu.root.after(1000, menu.missingFilesCheck)
         menu.root.mainloop()
         FileHandler.closeVault()
@@ -54,8 +54,8 @@ class MainMenu:
         this.shareSendBtn = ctk.CTkButton(this.root, text="Send Files", **largeBtnParams, command=lambda: runShareSendMenu(this.vault, this.path, this.UserClass))
         this.shareSendBtn.grid(row=7, rowspan=1, column=0, columnspan=2, pady=padding)
 
-        this.shareReceiveBtn = ctk.CTkButton(this.root, text="Receive Files", **largeBtnParams, command=lambda: runShareReceivedMenu(this.vault))
-        this.shareReceiveBtn.grid(row=7, rowspan=1, column=2, columnspan=2)
+        this.shareReceiveBtn = ctk.CTkButton(this.root, text="PLACEHOLDER", **largeBtnParams, command=this.shareReceiveHandler)
+        this.shareReceiveBtn.grid(row=7, rowspan=1, column=2, columnspan=3)
 
         this.saveOptions = ctk.CTkComboBox(this.root, values=("Add and Save", "Save Existing Only", "Don't Save"), font=textFont, width=170)
         this.saveOptions.grid(row=4, rowspan=1, column=4, columnspan=1, padx=padding)
@@ -115,3 +115,13 @@ class MainMenu:
             return
         text = f"The following files are missing, and are at risk of being removed: \n{missingFiles}"
         mb.showwarning("Missing Files", text)
+
+
+    def shareReceiveHandler(this, checkOnly=False) -> None:
+        if checkOnly is False:
+            runShareReceivedMenu(this.vault)
+        numOfFiles = this.vault.numSharedFiles()
+        this.shareReceiveBtn.configure(text=f"Inbox ({numOfFiles})")
+        if numOfFiles == 0:
+            this.shareReceiveBtn.configure(state=ctk.DISABLED)
+        this.updateFilesList()
