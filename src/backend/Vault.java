@@ -6,12 +6,17 @@ public class Vault {
     private User user;
     private UserManager userManager;
     private String[] missingFiles;
+    private ProgressBar progressBar;
 
-    public Vault(UserManager userManager, User user) {
+    public Vault(UserManager userManager, User user, ProgressBar progressBar) {
         this.userManager = userManager;
         this.user = user;  
-        this.missingFiles = FileHandler.openVault(user);
+        this.progressBar = progressBar;
         userManager.updateUserFile(user);
+    }
+
+    public void open() {
+        this.missingFiles = FileHandler.openVault(user, progressBar);
     }
     
 
@@ -22,7 +27,7 @@ public class Vault {
         return list;
     }
     public void saveFiles(boolean addNewFiles) {
-        ProgressBar progressBar = new ProgressBar("Saving Files: ", ProgressBar.DEFAULT_LENGTH);
+        progressBar.start();
         String[] fileNames = FileHandler.getFilenamesAtPath(FileHandler.DECRYPTED_VAULT_EXT);
         
         for (int i = 0; i < fileNames.length; i++) {

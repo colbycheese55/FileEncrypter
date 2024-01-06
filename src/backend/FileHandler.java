@@ -95,8 +95,8 @@ public class FileHandler {
 
 
     // HELPER METHODS
-    public static String[] openVault(User user) {
-        ProgressBar progressBar = new ProgressBar("Opening the Vault: ", ProgressBar.DEFAULT_LENGTH);
+    public static String[] openVault(User user, ProgressBar progressBar) {
+        progressBar.start();
         ArrayList<String> missingFileNames = new ArrayList<String>();
         ArrayList<FileProfile> fileList = new ArrayList<FileProfile>(user.fileProfiles.values());
         vaultOpeningTime[0] = System.currentTimeMillis();

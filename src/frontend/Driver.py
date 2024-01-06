@@ -25,5 +25,4 @@ while rerun:
     user = authenticate(userManager, User, True)
     if user is None:
         break
-    vault = Vault(userManager, user)
-    rerun = runMainMenu(vault, FileHandler, path, User)
+    rerun = runMainMenu(Vault, User, FileHandler, user, userManager, path)

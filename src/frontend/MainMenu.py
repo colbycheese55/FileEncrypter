@@ -1,12 +1,14 @@
 import customtkinter as ctk
 from tkinter import messagebox as mb
+import jpype as java
 from Standards import padding, textFont, labelFont, entryFont, linkFont, largeBtnParams, smallBtnParams
 from ShareMenu import runShareReceivedMenu, runShareSendMenu
 
 
-def runMainMenu(vaultObj, FileHandler, path, UserClass) -> bool:
-        menu = MainMenu(vaultObj, path, UserClass)
+def runMainMenu(VaultClass, UserClass, FileHandler, user, userManager, path) -> bool:
+        menu = MainMenu(VaultClass, UserClass, user, userManager, path)
         menu.shareReceiveHandler(checkOnly=True)
+        menu.root.after(500, menu.vault.open)
         menu.root.after(1000, menu.missingFilesCheck)
         menu.root.mainloop()
         FileHandler.closeVault()
@@ -14,16 +16,13 @@ def runMainMenu(vaultObj, FileHandler, path, UserClass) -> bool:
 
 
 class MainMenu:
-    def __init__(this, vaultObj, path, UserClass) -> None:
+    def __init__(this, VaultClass, UserClass, user, userManager, path) -> None:
         this.root = ctk.CTk()
         this.root.title("File Encrypter Menu")
+        this.root.geometry("510x520")
+        this.root.resizable(False, False)
         this.root.protocol("WM_DELETE_WINDOW", lambda: this.systemHandler("quit"))
         
-        this.vault = vaultObj
-        this.path = path
-        this.UserClass = UserClass
-        this.rerun = False
-
         
         # Text box and Labels
         this.textBoxLabel = ctk.CTkLabel(this.root, text="Registered Files", font=labelFont)
@@ -63,6 +62,23 @@ class MainMenu:
         this.deleteOptions = ctk.CTkComboBox(this.root, values=("Remove from this user", "Delete from all users", "Don't Remove"), font=textFont, width=170)
         this.deleteOptions.grid(row=5, rowspan=1, column=4, columnspan=1, padx=padding)
 
+
+        # Progress Bar
+        this.progressBarLabel = ctk.CTkLabel(this.root, text="", font=labelFont)
+        this.progressBarLabel.grid(row=8, rowspan=1, column=0, columnspan=5, pady=padding)
+
+        this.progressBar = ctk.CTkProgressBar(this.root, orientation="horizontal", width=400, progress_color="#CD5250")
+ 
+
+        # Handling other variables
+        PBinterface = java.JClass("src.backend.ProgressBar")
+        PBmanager = ProgressBarManager(this.progressBar, this.progressBarLabel, this.root)
+        PBmanager = java.JProxy(PBinterface, inst=PBmanager)
+        this.vault = VaultClass(userManager, user, PBmanager)
+        this.path = path
+        this.UserClass = UserClass
+        this.rerun = False
+  
 
     def systemHandler(this, command: str) -> None:
         saveFlag = this.saveOptions.get()
@@ -125,3 +141,26 @@ class MainMenu:
         if numOfFiles == 0:
             this.shareReceiveBtn.configure(state=ctk.DISABLED)
         this.updateFilesList()
+
+
+class ProgressBarManager():
+    def __init__(this, progressBar: ctk.CTkProgressBar, label: ctk.CTkLabel, root: ctk.CTk) -> None:
+        this.progressBar = progressBar
+        this.label = label
+        this.root = root
+
+    def start(this) -> None:
+        this.label.configure(text="Progress Bar")
+        this.progressBar.grid(row=9, rowspan=1, column=0, columnspan=5)  
+        this.progressBar.set(0) 
+        this.root.update_idletasks()     
+
+    def update(this, val: float) -> None:
+        if val > 1 or val < 0:
+            raise Exception("val must be within [0,1]")
+        this.progressBar.set(val)
+        this.root.update_idletasks()
+
+    def complete(this) -> None:
+        this.label.configure(text="")
+        this.progressBar.grid_forget()
