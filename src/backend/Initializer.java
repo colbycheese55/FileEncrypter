@@ -2,34 +2,33 @@ package src.backend;
 import java.io.*;
 
 public class Initializer {
-    public static void main(String path) { // must create: user file, encrypted vault subdirectory, decrypted vault subdirectory
-        boolean itemsCreated = false;
+    public static String main(String path) { // must create: user file, encrypted vault subdirectory, decrypted vault subdirectory
+        String text = "";
         FileHandler.PROGRAM_PATH = path;
         File encryptedVaultDir = new File(FileHandler.PROGRAM_PATH + FileHandler.ENCRYPTED_VAULT_EXT);
         if (!encryptedVaultDir.exists()) {
             encryptedVaultDir.mkdir();
-            System.out.println("Subdirectory made: " + encryptedVaultDir.getName());
-            itemsCreated = true;
+            text += "Subdirectory made: " + encryptedVaultDir.getName() + "\n";
         }
         File decryptedVaultDir = new File(FileHandler.PROGRAM_PATH + FileHandler.DECRYPTED_VAULT_EXT);
         if (!decryptedVaultDir.exists()) {
             decryptedVaultDir.mkdir();
-            System.out.println("Subdirectory made: " + decryptedVaultDir.getName());
-            itemsCreated = true;
+            text += "Subdirectory made: " + decryptedVaultDir.getName() + "\n";
         }
         File userFile = new File(FileHandler.PROGRAM_PATH + FileHandler.USER_FILE_EXT);
         if (!userFile.exists()) {
             String defaultIV = Encryption.generateSecureToken();
             FileHandler.writeUserFile(defaultIV + "&&");
-            System.out.println(userFile.getName() + " made");
-            itemsCreated = true;
+            text += userFile.getName() + " made \n";
         }
 
-        if (itemsCreated) {
-            System.out.println("Initialization complete!");
-            System.out.println("____________________________________________________________\n");
-        }
+        if (text.equals(""))
+            text = null;
+        else
+            text += "Initialization complete!";
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {FileHandler.closeVault();}});
+
+        return text;
 }}

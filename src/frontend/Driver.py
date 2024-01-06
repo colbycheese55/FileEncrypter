@@ -1,4 +1,5 @@
 import jpype as java
+from tkinter import messagebox as mb
 import os
 from MainMenu import runMainMenu
 from Authentication import authenticate
@@ -10,13 +11,15 @@ path = os.getcwd()
 path += "\\testing\\" if TESTING else "\\"
 java.startJVM(classpath="build/backend.jar")
 
-Initializer = java.JClass("src.backend.Initializer")
-Initializer.main(path)
-
 UserManager = java.JClass("src.backend.UserManager")
 User = java.JClass("src.backend.User")
 Vault = java.JClass("src.backend.Vault")
 FileHandler = java.JClass("src.backend.FileHandler")
+Initializer = java.JClass("src.backend.Initializer")
+
+result = Initializer.main(path)
+if result:
+    mb.showinfo("Initialization", result)
 
 userManager = UserManager()
 
