@@ -5,24 +5,22 @@ from Standards import padding, textFont, labelFont, entryFont, linkFont, largeBt
 from ShareMenu import runShareReceivedMenu, runShareSendMenu
 
 
-def runMainMenu(VaultClass, UserClass, FileHandler, user, userManager, path) -> bool:
-        menu = MainMenu(VaultClass, UserClass, user, userManager, path)
+def runMainMenu(user, userManager, path: str, classes: dict) -> bool:
+        menu = MainMenu(user, userManager, path, classes)
         menu.shareReceiveHandler(checkOnly=True)
-        menu.root.after(500, menu.vault.open)
-        menu.root.after(1000, menu.missingFilesCheck)
+        menu.root.after(500, menu.openVault)
         menu.root.mainloop()
-        FileHandler.closeVault()
+        classes["FileHandler"].closeVault()
         return menu.rerun
 
 
 class MainMenu:
-    def __init__(this, VaultClass, UserClass, user, userManager, path) -> None:
+    def __init__(this, user, userManager, path: str, classes: dict) -> None:
         this.root = ctk.CTk()
         this.root.title("File Encrypter Menu")
         this.root.geometry("510x520")
         this.root.resizable(False, False)
         this.root.protocol("WM_DELETE_WINDOW", lambda: this.systemHandler("quit"))
-        
         
         # Text box and Labels
         this.textBoxLabel = ctk.CTkLabel(this.root, text="Registered Files", font=labelFont)
@@ -34,11 +32,9 @@ class MainMenu:
         this.infoLabel = ctk.CTkLabel(this.root, text="PLACEHOLDER", font=textFont)
         this.infoLabel.grid(row=6, rowspan=1, column=0, columnspan=3, padx=padding, pady=0)
 
-
         this.textBox = ctk.CTkTextbox(this.root, width=300, height=300, font=textFont)
         this.textBox.grid(row=1, rowspan=5, column=0, columnspan=3, padx=padding, pady=padding)
         this.textBox.configure(state=ctk.DISABLED)
-
 
         # Buttons
         this.refreshBtn = ctk.CTkButton(this.root, text="Refresh", **smallBtnParams, command=lambda: this.systemHandler("refresh"))
@@ -50,7 +46,7 @@ class MainMenu:
         this.quitBtn = ctk.CTkButton(this.root, text="Quit", **smallBtnParams, command=lambda: this.systemHandler("quit"))
         this.quitBtn.grid(row=3, rowspan=1, column=4, columnspan=1, padx=padding)
 
-        this.shareSendBtn = ctk.CTkButton(this.root, text="Send Files", **largeBtnParams, command=lambda: runShareSendMenu(this.vault, this.path, this.UserClass))
+        this.shareSendBtn = ctk.CTkButton(this.root, text="Send Files", **largeBtnParams, command=lambda: runShareSendMenu(this.vault, path, classes["User"]))
         this.shareSendBtn.grid(row=7, rowspan=1, column=0, columnspan=2, pady=padding)
 
         this.shareReceiveBtn = ctk.CTkButton(this.root, text="PLACEHOLDER", **largeBtnParams, command=this.shareReceiveHandler)
@@ -62,23 +58,26 @@ class MainMenu:
         this.deleteOptions = ctk.CTkComboBox(this.root, values=("Remove from this user", "Delete from all users", "Don't Remove"), font=textFont, width=170)
         this.deleteOptions.grid(row=5, rowspan=1, column=4, columnspan=1, padx=padding)
 
-
         # Progress Bar
         this.progressBarLabel = ctk.CTkLabel(this.root, text="", font=labelFont)
         this.progressBarLabel.grid(row=8, rowspan=1, column=0, columnspan=5, pady=padding)
 
         this.progressBar = ctk.CTkProgressBar(this.root, orientation="horizontal", width=400, progress_color="#CD5250")
- 
 
         # Handling other variables
-        PBinterface = java.JClass("src.backend.ProgressBar")
-        PBmanager = ProgressBarManager(this.progressBar, this.progressBarLabel, this.root)
-        PBmanager = java.JProxy(PBinterface, inst=PBmanager)
-        this.vault = VaultClass(userManager, user, PBmanager)
-        this.path = path
-        this.UserClass = UserClass
+        PBpy = ProgressBarManager(this.progressBar, this.progressBarLabel, this.root)
+        this.PBmanager = java.JProxy(classes["ProgressBar"], inst=PBpy)
+        this.vault = classes["Vault"](userManager, user, this.PBmanager)
+        this.user = user
+        this.classes = classes
         this.rerun = False
-  
+
+
+    def openVault(this) -> None:
+        missingFiles = this.classes["FileHandler"].openVault(this.user, this.PBmanager)
+        if len(missingFiles) > 0:
+            text = "The following files are missing, and are at risk of being removed: \n" + "\n".join(missingFiles)
+            mb.showwarning("Missing Files", text)
 
     def systemHandler(this, command: str) -> None:
         saveFlag = this.saveOptions.get()
@@ -90,7 +89,7 @@ class MainMenu:
             case "Don't Save":
                 pass
             case _:
-                raise Exception
+                raise Exception()
         deleteFlag = this.deleteOptions.get()
         match deleteFlag:
             case "Remove from this user":
@@ -100,7 +99,7 @@ class MainMenu:
             case "Don't Remove":
                 pass
             case _:
-                raise Exception
+                raise Exception()
         match command:
             case "refresh":
                 this.updateFilesList()
@@ -111,9 +110,8 @@ class MainMenu:
                 this.rerun = False
                 this.root.destroy()
             case _:
-                raise Exception
+                raise Exception()
         
-
     def updateFilesList(this) -> None:
         fileListing = this.vault.listFiles()
         info = this.vault.getVaultInfo()
@@ -123,15 +121,6 @@ class MainMenu:
         this.textBox.insert(ctk.END, fileListing)
         this.textBox.configure(state=ctk.DISABLED)
         this.infoLabel.configure(text=info)
-
-
-    def missingFilesCheck(this) -> None:
-        missingFiles = this.vault.getMissingFiles()
-        if missingFiles is None:
-            return
-        text = f"The following files are missing, and are at risk of being removed: \n{missingFiles}"
-        mb.showwarning("Missing Files", text)
-
 
     def shareReceiveHandler(this, checkOnly=False) -> None:
         if checkOnly is False:

@@ -5,27 +5,24 @@ import java.util.*;
 public class Vault {
     private User user;
     private UserManager userManager;
-    private String[] missingFiles;
     private ProgressBar progressBar;
 
     public Vault(UserManager userManager, User user, ProgressBar progressBar) {
         this.userManager = userManager;
         this.user = user;  
         this.progressBar = progressBar;
-        userManager.updateUserFile(user);
     }
 
-    public void open() {
-        this.missingFiles = FileHandler.openVault(user, progressBar);
-    }
+    public User getUser() {return user;}
+    public UserManager getUserManager() {return userManager;}
+
     
-
-    // MENU OPTIONS
     public String listFiles() {
         String list = Arrays.toString(user.fileProfiles.keySet().toArray());
         list = list.replace(", ", "\n").replace("[", "").replace("]", "");
         return list;
     }
+
     public void saveFiles(boolean addNewFiles) {
         progressBar.start();
         String[] fileNames = FileHandler.getFilenamesAtPath(FileHandler.DECRYPTED_VAULT_EXT);
@@ -50,6 +47,7 @@ public class Vault {
         userManager.updateUserFile(user);
         progressBar.complete();
     }
+
     public void removeFiles(boolean deleteFromAllUsers) {
         ArrayList<String> toRemove = new ArrayList<String>();
         for (FileProfile upNext: user.fileProfiles.values()) // adding names from the user's fileprofiles
@@ -67,9 +65,11 @@ public class Vault {
         }
         userManager.updateUserFile(user);
     }
+
     public String getVaultInfo() {
         return user.getName() + " is signed in, with " + user.fileProfiles.size() + " file(s) available";
     }
+    
     public String trySharedFiles(String password) {
         ArrayList<String> sharedFiles = userManager.shareLog.getEntriesForUser(user.getName());
         String out = "";
@@ -87,6 +87,7 @@ public class Vault {
         userManager.updateUserFile(user);
         return out;
     }
+
     public int numSharedFiles() {
         ArrayList<String> sharedFiles = userManager.shareLog.getEntriesForUser(user.getName());
         return sharedFiles.size();
@@ -130,16 +131,5 @@ public class Vault {
         FileProfile fileProfile = new FileProfile(fileName, key, IV);
         FileHandler.encryptFile(fileName, absPath, key, IV);
         return fileProfile;
-    }
-
-    public User getUser() {return user;}
-    public UserManager getUserManager() {return userManager;}
-    public String getMissingFiles() {
-        String out = "";
-        for (String file: this.missingFiles)
-            out += file + "\n";
-        if (out.equals(""))
-            return null;
-        return out;
     }
 }

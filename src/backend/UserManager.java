@@ -30,17 +30,16 @@ public class UserManager{
             
     }
 
-    // VERIFICATION METHODS
     public boolean hasUsername(String username) { // only called by User.getUsername()
         return users.containsKey(username.hashCode());
     }
+
     public boolean correctPassword(String username, String password) { // only used by User.getPassword()
         EncryptedUser user = users.get(username.hashCode());
         String decryptedUserName = Encryption.decrypt(user.encryptedName, password);
         return username.equals(decryptedUserName);
     }
 
-    // User class EXCLUSIVE METHODS
     public boolean createNewUser(String username, String password) {
         if (hasUsername(username))
             return false;
@@ -49,6 +48,7 @@ public class UserManager{
         regenerateRawText();
         return true;
     }
+
     public void changeUserCredentials(String oldUserName, User user) {
         users.remove(oldUserName.hashCode());
         int newHashedName = user.getName().hashCode();
@@ -57,6 +57,7 @@ public class UserManager{
         users.put(newHashedName, newEncryptedUser);
         updateUserFile(user);
     }
+
     public HashMap<String, FileProfile> getAvailableFiles(String username, String password) {
         String rawText = users.get(username.hashCode()).rawText;
         String decryptedText = Encryption.decrypt(rawText, password);
@@ -79,6 +80,7 @@ public class UserManager{
         encryptedUser.rawText = Encryption.encrypt(rawText, user.getPassword());
         regenerateRawText();        
     }
+
     private void regenerateRawText() {
         String rawText = Encryption.getDefaultIV() + "&&";
         rawText += EncryptedUser.toString(users) + "&&";
@@ -101,6 +103,7 @@ public class UserManager{
         public String toString() {
             return hashedName + " " + encryptedName + " " + rawText;
         }
+
         public static void importUsers(String in, HashMap<Integer, EncryptedUser> users) {
             if (in.equals(""))
                 return;
@@ -112,9 +115,8 @@ public class UserManager{
                 EncryptedUser encryptedUser = new EncryptedUser(components[0], components[1], rawText);
                 users.put(Integer.valueOf(components[0]), encryptedUser);
         }}
+
         public static String toString(HashMap<Integer, EncryptedUser> users) {
             String rawText = Arrays.toString(users.values().toArray());
             return rawText.replace(", ", "\n").replace("[", "").replace("]", "");
-        }
-    }
-}
+}}}

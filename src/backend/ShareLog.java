@@ -17,7 +17,7 @@ public class ShareLog {
                 ArrayList<SharedFile> list = new ArrayList<>();
                 list.add(sharedFile);
                 shares.put(sharedFile.usernameHash, list);
-        }}}
+    }}}
 
     public void addEntry(FileProfile fileProfile, String receivingUsername, String OTP) {
         String encFileProfile = Encryption.encrypt(fileProfile.toString(), OTP);
@@ -74,6 +74,4 @@ public class ShareLog {
 
         public String toString() {
             return usernameHash + "|" + encFileProfile;
-        }
-    }
-}
+}}}

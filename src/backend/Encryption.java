@@ -58,6 +58,7 @@ public class Encryption {
         catch (GeneralSecurityException e) {e.printStackTrace();}
         return null;
     }
+
     private static SecretKeySpec getKeyFromPassword(String password) {
         try {
             String salt = "salt";
@@ -69,12 +70,14 @@ public class Encryption {
         catch (Exception e) {e.printStackTrace();}
         return null;
     }
+
     public static String generateSecureToken() {
         Random random = new Random();
         byte[] arr = new byte[16];
         random.nextBytes(arr);
         return Base64.getEncoder().encodeToString(arr);
     }
+    
     public static String hashName(String fileName, String IV) {
         String hash = encrypt(fileName, fileName, IV);
         hash = hash.replace("/", ".");

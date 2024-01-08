@@ -10,6 +10,7 @@ def authenticate(userManager, UserClass, mainProcess=False) -> any:
             authWindow.root.wait_window()
         return authWindow.authUser
 
+
 class AuthWindow:
     def __init__(this, userManager, UserClass, mainProcess: bool) -> None:
         this.authUser = None
@@ -59,6 +60,17 @@ class AuthWindow:
         this.root.bind("<Control-w>", lambda _: this.root.destroy())
 
 
+    def enterCredentials(this) -> None:
+        username = this.usernameEntry.get()
+        password = this.passwordEntry.get()
+        result = this.UserClass.authenticate(username, password, this.userManager)
+        if result:
+            this.authUser = result
+            this.root.destroy()
+        else:
+            this.instructions.configure(text="Invalid Credentials!")
+            this.colorChange(this.usernameEntry, this.passwordEntry)
+
     def setupcreateNewUser(this) -> None:
         this.instructions.configure(text="Enter New Credentials")
         this.enterBtn.configure(text="Create")
@@ -75,19 +87,6 @@ class AuthWindow:
         else:
             this.instructions.configure(text="User Already Exists!")
             this.colorChange(this.usernameEntry)
-
-
-    def enterCredentials(this) -> None:
-        username = this.usernameEntry.get()
-        password = this.passwordEntry.get()
-        result = this.UserClass.authenticate(username, password, this.userManager)
-        if result:
-            this.authUser = result
-            this.root.destroy()
-        else:
-            this.instructions.configure(text="Invalid Credentials!")
-            this.colorChange(this.usernameEntry, this.passwordEntry)
-    
 
     def setupModifyCredentials(this) -> None:
         this.instructions.configure(text="Enter New and Old Credentials")
@@ -121,7 +120,6 @@ class AuthWindow:
             return
         this.authUser = user
         this.root.destroy()
-
 
     def colorChange(this, *elements) -> None:
         for element in elements:

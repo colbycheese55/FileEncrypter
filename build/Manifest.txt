@@ -1,3 +1,2 @@
-Main-Class: src.Driver
 Implementation-Title: FileEncrypter
-Implementation-Version: 2.0
+Implementation-Version: 3.0

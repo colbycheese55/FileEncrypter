@@ -31,6 +31,8 @@ public class FileCountLog {
                     table.put(fileNameHash, table.get(fileNameHash) + 1);
                     break;
                 case "-1":
+                    if (!table.containsKey(fileNameHash))
+                        return;
                     table.put(fileNameHash, table.get(fileNameHash) - 1);
                     if (table.get(fileNameHash) <= 0) {
                         table.remove(fileNameHash);
@@ -43,6 +45,4 @@ public class FileCountLog {
                     break;
                 default:
                     throw new IllegalArgumentException();
-            }
-        }
-}
+}}}

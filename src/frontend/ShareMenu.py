@@ -16,6 +16,7 @@ class ShareReceivedMenu:
         this.vault = vault
         this.root = ctk.CTkToplevel()
         this.root.attributes("-topmost", True)
+        this.root.after(1000, lambda: this.root.attributes("-topmost", False))
         this.root.title("Received Files")
         this.root.geometry("480x320")
         this.root.resizable(False, False)
@@ -35,7 +36,6 @@ class ShareReceivedMenu:
 
         this.root.bind("<Return>", lambda _: this.tryOTP(None))
 
-
     def tryOTP(this, username=None) -> None:
         password = username if username else this.otpEntry.get()
         text = "Files unlocked by username:" if username else f"Files unlocked by \"{password}\":"
@@ -48,19 +48,20 @@ class ShareReceivedMenu:
         this.info.configure(text=filesLeftText)
 
 
-def runShareSendMenu(vault, path, UserClass):
+def runShareSendMenu(vault, path: str, UserClass):
     menu = ShareSendMenu(vault, path, UserClass)
     menu.root.mainloop()
 
 
 class ShareSendMenu:
-    def __init__(this, vault, path, UserClass) -> None:
+    def __init__(this, vault, path: str, UserClass) -> None:
         this.vault = vault
         this.path = path
         this.UserClass = UserClass
         this.files = set()
         this.root = ctk.CTkToplevel()
         this.root.attributes("-topmost", True)
+        this.root.after(1000, lambda: this.root.attributes("-topmost", False))
         this.root.title("Send Files")
         this.root.geometry("500x350")
         this.root.resizable(False, False)
@@ -90,7 +91,6 @@ class ShareSendMenu:
 
         this.shareBtn = ctk.CTkButton(this.root, text="Share Files", **largeBtnParams, command=this.share)
         this.shareBtn.grid(row=6, rowspan=1, column=1, columnspan=1)
-
 
     def chooseFiles(this) -> None: #TODO, fix allows repeats
         newFiles = fd.askopenfilenames(title="Choose files to share", initialdir=f"{this.path}/unlocked-storage")
@@ -131,7 +131,7 @@ class ShareSendMenu:
                     return
         this.clear()
 
-    def shareMethodSwitch(this, value) -> None:
+    def shareMethodSwitch(this, value: str) -> None:
         if value == "Share by OTP":
             this.otpEntry.configure(state=ctk.NORMAL)
         else:

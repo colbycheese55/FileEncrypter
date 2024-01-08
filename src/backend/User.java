@@ -11,15 +11,15 @@ public class User {
         this.fileProfiles = fileProfiles;
     }
 
+    public String getName() {return username;}
+    public String getPassword() {return password;}
+
     public static User authenticate(String username, String password, UserManager userManager) {
         if (!userManager.hasUsername(username) || !userManager.correctPassword(username, password))
             return null;
         HashMap<String, FileProfile> fileProfiles = userManager.getAvailableFiles(username, password);
         return new User(username, password, fileProfiles);
     }
-
-    public String getName() {return username;}
-    public String getPassword() {return password;}
 
     public boolean changeCredentials(String newUsername, String newPassword, UserManager userManager) {
         String oldName = username;

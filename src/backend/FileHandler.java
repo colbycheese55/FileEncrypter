@@ -41,6 +41,7 @@ public class FileHandler {
 
         } catch(IOException e) {e.printStackTrace();}
     }
+
     public static boolean decryptFile(String fileName, String password, String IV) {
         File encryptedFile = new File(PROGRAM_PATH + ENCRYPTED_VAULT_EXT + Encryption.hashName(fileName, IV));
         if (!encryptedFile.exists())
@@ -68,6 +69,7 @@ public class FileHandler {
         } catch(IOException e) {e.printStackTrace();}
         return true;
     }
+
     public static String readUserFile() {
         try {
             File file = new File(PROGRAM_PATH + USER_FILE_EXT);
@@ -83,6 +85,7 @@ public class FileHandler {
         catch (FileNotFoundException e) {System.out.println("File not found!");}
         return null;
     }
+
     public static void writeUserFile(String in) {
         try {
             File file = new File(PROGRAM_PATH + USER_FILE_EXT);
@@ -94,7 +97,7 @@ public class FileHandler {
     }
 
 
-    // HELPER METHODS
+    // OTHER METHODS
     public static String[] openVault(User user, ProgressBar progressBar) {
         progressBar.start();
         ArrayList<String> missingFileNames = new ArrayList<String>();
@@ -112,18 +115,22 @@ public class FileHandler {
         progressBar.complete();
         return missingFileNames.toArray(new String[0]);
     }
+
     public static void closeVault() {
         for (String upNext: getFilenamesAtPath(DECRYPTED_VAULT_EXT))
             delete(DECRYPTED_VAULT_EXT + upNext);
     } 
+
     public static String[] getFilenamesAtPath(String relativePath) {
         File directory = new File(PROGRAM_PATH + relativePath);
         return directory.list();
     }
+
     public static void delete(String relativePath) {
         File file = new File(PROGRAM_PATH + relativePath);
         file.delete();
     }    
+    
     public static boolean hasFileBeenModified(String filename) {
         try {
             File file = new File(PROGRAM_PATH + DECRYPTED_VAULT_EXT + filename);

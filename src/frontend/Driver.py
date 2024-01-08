@@ -7,25 +7,30 @@ from Authentication import authenticate
 
 TESTING = True
 
-path = os.getcwd()
-path += "\\testing\\" if TESTING else "\\"
-java.startJVM(classpath="build/backend.jar")
+path = f"{os.getcwd()}\\testing\\" if TESTING else f"{os.getcwd()}\\"
+classpath = "build/backend.jar" if TESTING else os.path.abspath(os.path.join(os.path.dirname(__file__), "backend.jar"))
+try:
+    java.startJVM(classpath=classpath, convertStrings=True)
+except Exception as e:
+    mb.showerror("JVM Error", "Could not start the JVM")
 
-UserManager = java.JClass("src.backend.UserManager")
-User = java.JClass("src.backend.User")
-Vault = java.JClass("src.backend.Vault")
-FileHandler = java.JClass("src.backend.FileHandler")
-Initializer = java.JClass("src.backend.Initializer")
+classes = dict()
+classes["UserManager"] = java.JClass("src.backend.UserManager")
+classes["User"] = java.JClass("src.backend.User")
+classes["Vault"] = java.JClass("src.backend.Vault")
+classes["FileHandler"] = java.JClass("src.backend.FileHandler")
+classes["Initializer"] = java.JClass("src.backend.Initializer")
+classes["ProgressBar"] = java.JClass("src.backend.ProgressBar")
 
-result = Initializer.main(path)
+result = classes["Initializer"].main(path)
 if result:
     mb.showinfo("Initialization", result)
 
-userManager = UserManager()
+userManager = classes["UserManager"]()
 
 rerun = True
 while rerun:
-    user = authenticate(userManager, User, True)
+    user = authenticate(userManager, classes["User"], True)
     if user is None:
         break
-    rerun = runMainMenu(Vault, User, FileHandler, user, userManager, path)
+    rerun = runMainMenu(user, userManager, path, classes)
