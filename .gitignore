@@ -1,6 +1,8 @@
 build/*
 !build/Manifest.txt
+dist/
 .venv/
 src/frontend/__pycache__/
 testing/
 TODO
+Package.spec
